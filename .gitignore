@@ -1,0 +1,8 @@
+/target/
+.idea
+.metadata
+.recommenders/
+*.iml
+catapult.iml
+RemoteSystemsTempFiles/
+
