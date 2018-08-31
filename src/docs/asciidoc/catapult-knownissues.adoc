@@ -1,0 +1,14 @@
+= Known issues
+Ole Gregersen ole.gregersen@sallinggroup.com
+2018-13-07
+:revnumber: {project-version}
+:example-caption!:
+ifndef::imagesdir[:imagesdir: images]
+ifndef::sourcedir[:sourcedir: ../../main/java]
+
+These are the known issues
+
+* [ ] catapult.json is only processed when the project is created. The user will have to delete the project and then re-run the catapult to get it processed again.
+
+== Issue tracker
+

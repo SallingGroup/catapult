@@ -1,0 +1,72 @@
+= Catapult Interfaces
+Ole Gregersen ole.gregersen@sallinggroup.com
+2018-13-07
+:revnumber: {project-version}
+:example-caption!:
+ifndef::imagesdir[:imagesdir: images]
+ifndef::sourcedir[:sourcedir: ../../src/main/java]
+
+This is a description of all systems that the catapult interfaces with.
+
+== Introduction
+
+
+
+== Source Code Repositories
+
+The Source Code Repositories are seperated in two layers, a service layer and a webhook (model) layer.
+The model layer holds information gathered from the webhook that triggered the catapult.
+The service layer implements the interaction with the Source Code Repositories.
+
+=== Current status
+
+The following Source Code Repositories are currently implemented and can be used by the Catapult:
+
+* BitBucket
+
+A skeleton implementation is available for the following Source Code Repositories:
+
+* GitLab
+
+And finally the following Source Code Repositories are on the to-be-implemented list:
+
+* GitHub
+
+.Source file
+
+link:../../src/main/java/dk/theknights/catapult/bitbucket/BitbucketAPI.java[BitbucketAPI.java]
+
+== OpenShift
+This service is used for communicating with OpenShift. OpenShift namespaces are created, deleted and modified through this service.
+
+Configuration options
+----
+Openshift endpoint // <1>
+Secret // <2>
+ProjectReservedGroups // <3>
+----
+<1> The API endpoint of openshift - the default is https://kubernetes.default
+<2> The Secret used for logging in to Openshift. The secret must be named `basic-auth-openshift`.
+<3> Special project groups. These groups allow multiple source repos to trigger builds and deployments. These projects are also not deleted by merge request hooks.
+
+.Source file
+
+link:../../src/main/java/dk/theknights/catapult/services/OpenShiftService.java[OpenShiftService.java]
+
+
+
+== BitBucket
+This service is used for getting the raw commit from Bitbucket. For now all this service is used for is getting the catapult template.
+If proxy is enabled, then this will try to connect to Bitbucket through the proxy.
+
+Configuration options
+----
+Login // <1>
+----
+<1> The secret used to log in to Bitbucket. The secret must be named `basic-auth-bitbucket`.
+
+
+.Source file
+
+link:../../src/main/java/dk/theknights/catapult/bitbucket/BitbucketAPI.java[BitbucketAPI.java]
+

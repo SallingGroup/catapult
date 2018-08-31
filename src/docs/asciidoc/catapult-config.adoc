@@ -1,0 +1,136 @@
+= Catapult Config
+Ole Gregersen ole.gregersen@sallinggroup.com
+2018-13-07
+:revnumber: {project-version}
+:example-caption!:
+ifndef::imagesdir[:imagesdir: images]
+ifndef::sourcedir[:sourcedir: ../../main/java]
+
+This is a description of the catapult config. You will find a guide for configuring the Catapult runtime and an explanation of the classes that are used for configuring the Catapult.
+
+== Policy Binding Configuration
+The Catapult manages some default policy bindings for all projects that it creates. With this policy binding it is possible to manage default user access. +
+It is mounted as a configmap with the name `defaultpolicybindingtemplate-config`
+
+.Source file
+
+link:../../src/main/java/dk/theknights/catapult/openshift/PolicyBindingTemplate.java[PolicyBindingTemplate.java]
+
+== Secrets Config
+The catapult supports three different kinds of secrets. These secrets are all extending the openshift client Secret class. They can be built using the `SecretBuilder`.
+
+* Access Token
+* Basic Auth
+* SSH Auth
+
+The following secret type is not implemented yet.
+
+* Docker Secret
+
+.Source files
+
+link:../../src/main/java/dk/theknights/catapult/config/secret/BasicAuthSecret.java[BasicAuthSecret.java]
+link:../../src/main/java/dk/theknights/catapult/config/secret/AccessTokenSecret.java[AccessTokenSecret.java]
+link:../../src/main/java/dk/theknights/catapult/config/secret/SSHAuthSecret.java[SSHAuthSecret.java]
+
+== Catapult Properties Config
+These properties are used to alter default naming and locations of the Catapult configuration.
+
+----
+name // <1>
+configpath // <2>
+releaseRegistrySecretName // <3>
+projectReservedGroups // <4>
+----
+<1> Maven project name.
+<2> Location of configuration files inside the container. Default: `/etc/catapult`
+<3> Name of release registry secret. Default: `release-registry-secret`
+<4> Special project groups. These groups allow multiple source repos to trigger builds and deployments. These projects are also not deleted by merge request hooks.
+
+.Source file
+
+link:../../src/main/java/dk/theknights/catapult/config/CatapultProperties.java[CatapultProperties.java]
+
+== Proxy Config
+The catapult can work through a proxy. To use a proxy enable it in application.properties and specify the proxy server host and port.
+
+----
+enabled // <1>
+host // <2>
+port // <3>
+----
+<1> `true` if proxy is enabled and `false` if not. Default: `false`
+<2> Proxy server host.
+<3> Proxy server port.
+
+.Source file
+
+link:../../src/main/java/dk/theknights/catapult/config/ProxyProperties.java[ProxyProperties.java]
+
+== Catapult Runtime Configuration
+The following chapter describes how to configure the Catapult in OpenShift.
+
+=== Secrets
+The Catapult expects secrets for the following Source Code Repositories.
+
+==== Bitbucket
+The secret must be named `basic-auth-bitbucket` and have the following structure:
+----
+username // <1>
+password // <2>
+----
+<1> The username used to connect to Bitbucket
+<2> The password used to authenticate with Bitbucket
+
+==== GitHub
+Not Implemented.
+
+==== GitLab
+The secret must be named `basic-auth-gitlab` and have the following structure:
+----
+username // <1>
+password // <2>
+accesstoken // <3>
+----
+<1> The username used to connect to GitLab
+<2> The password used to authenticate with GitLab
+<3> The accesstoken used to authenticate with GitLab
+
+IMPORTANT: If you are only using one of the above repositories, then configure that one and use dummy or empty username and passwords for the others. Currently there are no options to enable or disable these repositories, so you must configure Bitbucket and Gitlab.
+
+=== Configmaps
+
+The Catapult expects a configmap named `defaultpolicybindingtemplate-config` that defines the default rolebinding managed by the Catapult.
+Below is an example of such a rolebinding that grants `admin` access to users in the group `some-group-name`.
+This can be used to maintain permissions for a team of developers that work on the same project to grant them `admin` access to all projects managed by the catapult.
+
+.defaultPolicyBindingTemplate.json
+----
+{
+  "name": "admin",
+  "roleBinding": {
+    "metadata": {
+      "creationTimestamp": "2018-03-08T12:45:09Z",
+      "name": "admin",
+      "namespace": "catapult",
+      "resourceVersion": "generated-by-catapult"
+    },
+    "userNames": null,
+    "groupNames": [
+      "some-group-name"
+    ],
+    "subjects": [
+      {
+        "kind": "Group",
+        "name": "some-group-name"
+      }
+    ],
+    "roleRef": {
+      "name": "admin"
+    }
+  }
+}
+----
+
+=== Storage
+Currently there are no storage requirements.

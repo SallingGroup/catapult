@@ -1,0 +1,72 @@
+= Catapult states
+Ole Gregersen ole.gregersen@sallinggroup.com
+2018-13-07
+:revnumber: {project-version}
+:example-caption!:
+ifndef::imagesdir[:imagesdir: images]
+ifndef::sourcedir[:sourcedir: ../../main/java]
+
+== States
+These are the different states that are activated in the strategies. The change of state is done by the transitions based on information from the current CatapultContext.
+
+=== Initial
+This is the starting state. All transitions must start in this state.
+This is also the state where tasks like validating the catapult configuration or environment setup is done.
+
+=== Done
+This is the end state of all transitions.
+
+=== Catapult Template Not Found
+This state is activated when there is no Catapult template in the source repository. This indicates that the webhook was
+triggered for a repository that does not use the Catapult and will not trigger any tasks.
+
+=== Catapult Template Found
+This state is activated when a Catapult template is found in the source repository. This template will be fetched and
+used for creating the OpenShift project.
+
+=== Release Project Found
+This state is activated when a project used for a release is already found in OpenShift.
+
+=== Release Project Not Found
+This state is activated when a project used for a release is not found in OpenShift.
+
+=== Catapult Template Changed
+This state is activated when the Catapult template in the source repository has changed. This will allow the Catapult to
+update the OpenShift project.
+
+=== Catapult Template Not Changed
+This state is activated when the Catapult template has not changed, indicating that the OpenShift project does not need to be updated.
+
+=== OpenShift Project Found
+This state is activated when the project is found in OpenShift.
+
+=== OpenShift Project Not found
+This state is activated when the project is not found in OpenShift. The Catapult will be responsible for creating this project.
+
+=== OpenShift Project Created
+This state is activated when the OpenShift project is created by the Catapult.
+
+=== OpenShift Project Deleted
+This state is activated when the OpenShift project is deleted by the Catapult.
+
+=== Policy Bindings Updated
+This state is activated when project policy bindings have been updated. This state indicates that the permissions were
+successfully applied to the OpenShift project.
+
+=== No Secrets Found
+This state is activated when there are no secrets for the Catapult to manage.
+
+=== Secrets Updated
+This state is activated when the Catapult has added the secrets that were annotated for Catapult management.
+
+=== No Configmaps Found
+This state is activated when there are no configmaps for the Catapult to manage.
+
+=== Configmaps Updated
+This state is activated when the Catapult has applied configmaps that were annotated for Catapult management.
+
+=== Catapult Template Processed
+This state is activated when the Catapult template has been processed.
+
+=== Catapult Template Process Error
+This state is activated if there were errors during Catapult template processing.

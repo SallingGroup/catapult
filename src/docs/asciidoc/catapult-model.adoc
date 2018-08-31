@@ -1,0 +1,26 @@
+= Catapult Model
+Ole Gregersen ole.gregersen@sallinggroup.com
+2018-13-07
+:revnumber: {project-version}
+:example-caption!:
+ifndef::imagesdir[:imagesdir: images]
+ifndef::sourcedir[:sourcedir: ../../main/java]
+
+This is a description of the catapult config. You will find a guide for configuring the Catapult runtime and an explanation of classes that are used for configuring the Catapult.
+
+== Introduction
+
+=== Catapult Context
+The catapult context is used to keep track of what the Catapult has done at any given point in time. This is where the webhook request, OpenShiftProject(s), configuration etc. is available.
+Any task that runs as part of the Catapult must update this context to reflect the current state.
+It also implements helper methods to identify which repository type (Bitbucket, GitHub or GitLab) is used.
+
+=== Webhook
+
+==== Bitbucket
+
+==== GitLab
+
+==== GitHub
+
+=== Openshift

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout (~{::body},'logs')}">
+
+  <body>
+    <img src="../static/resources/images/pets.png" th:src="@{/resources/images/pets.png}"/>
+    <h2>Ahh the logs!</h2>
+    <div id="log" data-text="\[localhost-startStop-1\]">
+    </div>
+    <script>
+      function loadLog() {
+        $( "#log" ).load( "/log/raw", function(response, status, xhr) {
+          $('div[data-text]').html(function(_, htm) {
+            var tt = htm.replace(new RegExp("^.+" + $(this).data('text') + ".*", 'mg'), '<span class="red" style="color: red;">$&</span>');
+            tt = tt.replace(/(?:\r\n|\r|\n)/g, '<br />');
+            return tt;
+          });
+          NProgress.start();
+        });
+        NProgress.done();
+        setTimeout(loadLog, 8000);
+      }
+
+      $( document ).ready(function() {
+        NProgress.start();
+        setTimeout(loadLog, 4000);
+      });
+    </script>
+
+  </body>
+
+</html>

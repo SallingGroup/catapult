@@ -1,0 +1,295 @@
+= Catapult tasks
+Ole Gregersen ole.gregersen@sallinggroup.com
+2018-13-07
+:revnumber: {project-version}
+:example-caption!:
+ifndef::imagesdir[:imagesdir: images]
+ifndef::sourcedir[:sourcedir: ../../main/java]
+
+== Introduction
+
+== CatapultAdapterTask
+All Catapult tasks must implement this interface. A task must provide an _accept_ method for states in which it wants to execute.
+When a task accepts a state, then the tasks perform method will be invoked with the current Catapult context.
+
+.Source file
+link:../../src/main/java/dk/theknights/catapult/strategies/adapter/tasks/CatapultAdapterTask.java[CatapultAdapterTask.java]
+
+== CatapultOpenShiftProjectLookupTask
+Catapult States:: `CATAPULT_TEMPLATE_FOUND`
+Catapult Context:: Project is set in context if found.
+
+Lookup project based on the webhook information in the Catapult context in OpenShift. If the project is found, the context is updated.
+
+.Source file
+link:../../src/main/java/dk/theknights/catapult/strategies/adapter/tasks/CatapultOpenShiftProjectLookupTask.java[CatapultOpenShiftProjectLookupTask.java]
+
+== ReleaseProjectLookupTask
+Catapult States:: `INITIAL`
+Catapult Context:: Project is set in context if found.
+
+This task will lookup the special release project in OpenShift. If the project is found, the Catapult context is updated.
+Since it is not possible to annotate or tag projects in OpenShift, the displayName is prefixed with `RELEASE-`.
+
+.Source file
+link:../../src/main/java/dk/theknights/catapult/strategies/adapter/tasks/ReleaseProjectLookupTask.java[ReleaseProjectLookupTask.java]
+
+== CatapultCreateOpenShiftProjectTask
+Catapult States::  `OPENSHIFT_PROJECT_NOT_FOUND`
+Catapult Context:: Newly created project is added to the current context.
+
+This task is responsible for creating projects in OpenShift. It uses the OpenShiftService to do this.
+This task will execute on the `OPENSHIFT_PROJECT_NOT_FOUND` state, so projects are only created if they do not exist.
+
+.Source file
+link:../../src/main/java/dk/theknights/catapult/strategies/adapter/tasks/CatapultCreateOpenShiftProjectTask.java[CatapultCreateOpenShiftProjectTask.java]
+
+== CatapultDeleteOpenShiftProjectTask
+Catapult States:: `OPENSHIFT_PROJECT_FOUND`, `RELEASE_PROJECT_FOUND`
+Catapult Context:: Project is removed from OpenShift and from the context.
+
+This task will remove a project from OpenShift. The task will wait for OpenShift to completely delete the project before finishing.
+The target project is identified from the Catapult context.
+
+.Source file
+link:../../src/main/java/dk/theknights/catapult/strategies/adapter/tasks/CatapultDeleteOpenShiftProjectTask.java[CatapultDeleteOpenShiftProjectTask.java]
+
+== CatapultFetchTemplateTask
+Catapult States:: `INITIAL`
+Catapult Context:: If successfully retrieved, the template is updated in the Catapult context.
+
+.Source file
+link:../../src/main/java/dk/theknights/catapult/strategies/adapter/tasks/CatapultFetchTemplateTask.java[CatapultFetchTemplateTask.java]
+
+== CatapultFetchBitbucketTemplateTask
+Catapult States:: `INITIAL`
+Catapult Context:: If the template is successully retrieved from Bitbucket, the template is updated in the Catapult context.
+
+This task will use the Bitbucket API to fetch the json template from the source repository. If successful, the Catapult context is updated.
+
+.Source file
+link:../../src/main/java/dk/theknights/catapult/strategies/adapter/tasks/bitbucket/CatapultFetchBitbucketTemplateTask.java[CatapultFetchBitbucketTemplateTask.java]
+
+== CatapultFetchGitHubTemplateTask
+Catapult States:: `INITIAL`
+Catapult Context:: n/a
+
+Skeleton for GitHub implementation.
+
+.Source file
+link:../../src/main/java/dk/theknights/catapult/strategies/adapter/tasks/github/CatapultFetchGitHubTemplateTask.java[CatapultFetchGitHubTemplateTask.java]
+
+== CatapultFetchGitLabTemplateTask
+Catapult States:: `INITIAL`
+Catapult Context:: n/a
+
+Skeleton for gitlab implementation
+
+.Source file
+link:../../src/main/java/dk/theknights/catapult/strategies/adapter/tasks/gitlab/CatapultFetchGitLabTemplateTask.java[CatapultFetchGitLabTemplateTask.java]
+
+== CatapultProcessTemplateTask
+Catapult States:: `CONFIGMAPS_UPDATED`, `NO_CONFIGMAPS_FOUND`
+Catapult Context:: Context is not modified in this task
+
+This task will process the template from the Catapult context. The template will be processed in OpenShift through the OpenShift service.
+Before the template is processed, the parameter `SOURCE_REPOSITORY_SECRET` is replaced with the pipeline source secret configured for the Catapult.
+The following parameters are also updated:
+
+* `SOURCE_REPOSITORY_REF` is updated with repository URL from the webhook.
+* `NAMESPACE` is replaced with the namespace from the Catapult context project namespace.
+
+.Source file
+link:../../src/main/java/dk/theknights/catapult/strategies/adapter/tasks/CatapultProcessTemplateTask.java[CatapultProcessTemplateTask.java]
+
+== CatapultCreateOpenShiftSourceSecretTask
+Catapult States:: `POLICY_BINDINGS_UPDATED`
+Catapult Context:: The secrets added by the task are also added to the Catapult context.
+
+This task will create the repository source secret and add it to the builder service account in OpenShift and the Catapult Context.
+This task will delegate to the Bitbucket, GitHub or GitLab implementation.
+
+.Source file
+link:../../src/main/java/dk/theknights/catapult/strategies/adapter/tasks/CatapultCreateOpenShiftSourceSecretTask.java[CatapultCreateOpenShiftSourceSecretTask.java]
+
+== CatapultCreateBitbucketSourceSecretTask
+Catapult States:: `POLICY_BINDINGS_UPDATED`
+Catapult Context:: The secrets added by the task are also added to the Catapult context.
+
+This task will get the Bitbucket source secret and add it to the OpenShift project, the builder service account and the Catapult context.
+
+.Source file
+link:../../src/main/java/dk/theknights/catapult/strategies/adapter/tasks/bitbucket/CatapultCreateBitbucketSourceSecretTask.java[CatapultCreateBitbucketSourceSecretTask.java]
+
+== CatapultCreateGitHubSourceSecretTask
+Catapult States:: none
+Catapult Context:: n/a
+
+Skeleton for GitHub implementation
+
+.Source file
+link:../../src/main/java/dk/theknights/catapult/strategies/adapter/tasks/github/CatapultCreateGitHubSourceSecretTask.java[CatapultCreateGitHubSourceSecretTask.java]
+
+== CatapultCreateGitLabSourceSecretTask
+Catapult States:: none
+Catapult Context:: n/a
+Skeleton for Gitlab implementation
+
+.Source file
+link:../../src/main/java/dk/theknights/catapult/strategies/adapter/tasks/gitlab/CatapultCreateGitLabSourceSecretTask.java[CatapultCreateGitLabSourceSecretTask.java]
+
+== CatapultCreateOpenShiftSecretTask
+Catapult States:: `POLICY_BINDINGS_UPDATED`
+Catapult Context:: The secrets added by the task are also added to the Catapult context.
+
+Creates secrets annotated for management by Catapult on OpenShift. These secrets are found in the Catapult context.
+
+.Source file
+link:../../src/main/java/dk/theknights/catapult/strategies/adapter/tasks/CatapultCreateOpenShiftSecretTask.java[CatapultCreateOpenShiftSecretTask.java]
+
+== CatapultCreateOpenShiftReleaseSecretTask
+Catapult States:: none
+Catapult Context:: The secrets added by the task are also added to the Catapult context.
+
+Adds the release secret to OpenShift and to the default service account.
+
+.Source file
+link:../../src/main/java/dk/theknights/catapult/strategies/adapter/tasks/CatapultCreateOpenShiftReleaseSecretTask.java[CatapultCreateOpenShiftReleaseSecretTask.java]
+
+== CatapultFetchOpenShiftSecretsTask
+Catapult States:: `POLICY_BINDINGS_UPDATED`
+Catapult Context:: The secrets added by the task are also added to the Catapult context.
+
+Get secrets from OpenShift that are annotated for management by the catapult.
+
+.Source file
+link:../../src/main/java/dk/theknights/catapult/strategies/adapter/tasks/CatapultFetchOpenShiftSecretsTask.java[CatapultFetchOpenShiftSecretsTask.java]
+
+== CatapultOpenShiftApplyPolicyBindingTask
+Catapult States:: `OPENSHIFT_PROJECT_CREATED`
+Catapult Context:: n/a
+
+The default policy binding template configured for the Catapult is applied to the OpenShift project.
+
+.Source file
+link:../../src/main/java/dk/theknights/catapult/strategies/adapter/tasks/CatapultOpenShiftApplyPolicyBindingTask.java[CatapultOpenShiftApplyPolicyBindingTask.java]
+
+== CatapultTriggerOpenShiftBuildTask
+Catapult States:: `NO_CONFIGMAPS_FOUND`, `CONFIGMAPS_UPDATED`, `CATAPULT_TEMPLATE_NOT_CHANGED`
+Catapult Context:: Catapult context is updated with builds that have been triggered.
+
+Annotated builds are triggered when the catapult webhook is activated.
+
+.Source file
+link:../../src/main/java/dk/theknights/catapult/strategies/adapter/tasks/CatapultTriggerOpenShiftBuildTask.java[CatapultTriggerOpenShiftBuildTask.java]
+
+== CatapultUpdateOpenShiftProjectRequester
+Catapult States:: `OPENSHIFT_PROJECT_NOT_FOUND`
+Catapult Context::
+
+OpenShift project display name is updated to reflect the user that requested the project creation.
+
+.Source file
+link:../../src/main/java/dk/theknights/catapult/strategies/adapter/tasks/CatapultUpdateOpenShiftProjectRequester.java[CatapultUpdateOpenShiftProjectRequester.java]
+
+== ReleaseProjectUpdateDisplayNameTask
+Catapult States:: `OPENSHIFT_PROJECT_CREATED`
+Catapult Context::
+
+Prefix the OpenShift display name with `RELEASE-`.
+
+.Source file
+link:../../src/main/java/dk/theknights/catapult/strategies/adapter/tasks/ReleaseProjectUpdateDisplayNameTask.java[ReleaseProjectUpdateDisplayNameTask.java]
+
+== CatapultStatisticsTask
+Catapult States::
+Catapult Context::
+
+Skeleton implementation.
+
+.Source file
+link:../../src/main/java/dk/theknights/catapult/strategies/adapter/tasks/CatapultStatisticsTask.java[CatapultStatisticsTask.java]
+
+== CatapultOpenShiftReplaceSourceSecretTask
+Catapult States::
+Catapult Context::
+
+Not implemented.
+
+.Source file
+link:../../src/main/java/dk/theknights/catapult/strategies/adapter/tasks/CatapultOpenShiftReplaceSourceSecretTask.java[CatapultOpenShiftReplaceSourceSecretTask.java]
+
+== CatapultDetectTemplateChangeTask
+Catapult States:: `OPENSHIFT_PROJECT_FOUND`
+Catapult Context:: Context is update to reflect if the Catapult template has changed.
+
+Detect if the template on Bitbucket has changed by downloading the commit and looking for the catapult.json file in the file list.
+
+.Source file
+link:../../src/main/java/dk/theknights/catapult/strategies/adapter/tasks/CatapultDetectTemplateChangeTask.java[CatapultDetectTemplateChangeTask.java]
+
+== CatapultProcessTemplateChangeTask
+Catapult States::
+Catapult Context::
+
+Not implemented
+
+.Source file
+link:../../src/main/java/dk/theknights/catapult/strategies/adapter/tasks/CatapultProcessTemplateChangeTask.java[CatapultProcessTemplateChangeTask.java]
+
+== CatapultProcessTemplateErrorTask
+Catapult States:: none
+Catapult Context:: n/a
+
+If OpenShift reported an error while processing the Catapult template this task will handle notifications and gracefully stop the catapult.
+Not implemented
+
+.Source file
+link:../../src/main/java/dk/theknights/catapult/strategies/adapter/tasks/CatapultProcessTemplateErrorTask.java[CatapultProcessTemplateErrorTask.java]
+
+== CatapultProcessTemplateModificationsTask
+Catapult States:: none
+Catapult Context:: n/a
+
+Not implemented
+
+.Source file
+link:../../src/main/java/dk/theknights/catapult/strategies/adapter/tasks/CatapultProcessTemplateModificationsTask.java[CatapultProcessTemplateModificationsTask.java]
+
+== CatapultFetchOpenShiftConfigMapsTask
+Catapult States::
+Catapult Context::
+
+Fetch configmaps that are annotated for management by the catapult.
+Not implemented
+
+.Source file
+link:../../src/main/java/dk/theknights/catapult/strategies/adapter/tasks/CatapultFetchOpenShiftConfigMapsTask.java[CatapultFetchOpenShiftConfigMapsTask.java]
+
+== CatapultCreateOpenShiftConfigMapTask
+Catapult States::
+Catapult Context::
+
+Create configmaps on OpenShift if they are annotated to be managed by the Catapult.
+Not implemented
+
+.Source file
+link:../../src/main/java/dk/theknights/catapult/strategies/adapter/tasks/CatapultCreateOpenShiftConfigMapTask.java[CatapultCreateOpenShiftConfigMapTask.java]
+
+== CatapultValidateConfigTask
+Catapult States:: `INITIAL`
+Catapult Context::
+
+Validate the Catapult configuration. The Catapult will not function correctly if this task does not validate all configurations as working.
+(Not really doing anything yet.)
+
+.Source file
+link:../../src/main/java/dk/theknights/catapult/strategies/adapter/tasks/CatapultValidateConfigTask.java[CatapultValidateConfigTask.java]
+
+== CleanupTriggerTask
+Catapult States:: `OPENSHIFT_PROJECT_DELETED`
+Catapult Context::
+
+Trigger custom cleanup tasks because the OpenShift project has been deleted.
+Not used yet
+

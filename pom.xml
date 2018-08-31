@@ -73,8 +73,8 @@
     </dependency>
     <dependency>
       <groupId>org.mockito</groupId>
-      <artifactId>mockito-all</artifactId>
-      <version>1.9.5</version>
+      <artifactId>mockito-core</artifactId>
+      <version>2.21.0</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -433,13 +433,5 @@
       </plugin>
     </plugins>
   </reporting>
-
-   <repositories>
-    <repository>
-      <id>DSDN</id>
-      <name>DSDigital Nexus - Maven central Proxy</name>
-      <url>https://nexus3-ci.dsdigital.eu/repository/maven-central/</url>
-    </repository>
-  </repositories>
 
 </project>

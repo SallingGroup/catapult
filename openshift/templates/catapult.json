@@ -1,0 +1,364 @@
+{
+  "kind": "Template",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "catapult",
+    "annotations": {
+      "openshift.io/display-name": "The Knights Automation Catapult",
+      "description": "Catapult for managing applications on OpenShift testing application list testing new branch",
+      "tags": "catapult,spring,java",
+      "iconClass": "icon-nodejs"
+    }
+  },
+  "message": "...",
+  "labels": {
+    "template": "catapult"
+  },
+  "objects": [
+      {
+        "kind": "Service",
+        "apiVersion": "v1",
+        "metadata": {
+          "name": "tarballs",
+          "annotations": {
+            "description": "Exposes and load balances the application pods"
+          }
+        },
+        "labels": {
+          "role": "catapult"
+        },
+      "spec": {
+        "ports": [
+          {
+            "name": "http",
+            "port": 8080,
+            "targetPort": 8080
+            }
+        ],
+        "selector": {
+          "name": "${NAME}-runtime"
+        }
+      }
+    },
+    {
+      "kind": "Route",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "${NAME}"
+      },
+      "spec": {
+        "host": "${APPLICATION_DOMAIN}",
+        "tls": {
+            "termination": "edge",
+            "insecureEdgeTerminationPolicy" : "Redirect"
+        },
+        "to": {
+          "kind": "Service",
+          "name": "tarballs"
+        }
+      }
+    },
+    {
+      "kind": "ImageStream",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "${NAME}-runtime",
+        "annotations": {
+          "description": "Keeps track of changes in the application image"
+        }
+      }
+    },
+    {
+      "kind": "BuildConfig",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "${NAME}-pipeline",
+        "annotations": {
+          "description": "Defines how to build the application",
+          "buildtrigger": "catapult"
+        }
+      },
+      "spec": {
+        "triggers": [],
+        "runPolicy": "Serial",
+        "source": {
+          "type": "Git",
+          "git": {
+            "uri": "${SOURCE_REPOSITORY_URL}",
+            "ref": "${SOURCE_REPOSITORY_REF}"
+          },
+          "sourceSecret": {
+            "name": "${SOURCE_REPOSITORY_SECRET}"
+          }
+        },
+        "strategy": {
+          "type": "JenkinsPipeline",
+          "jenkinsPipelineStrategy": {
+            "jenkinsfilePath": "openshift/Jenkinsfile"
+          }
+        }
+      }
+    },
+    {
+        "kind": "BuildConfig",
+        "apiVersion": "v1",
+        "metadata": {
+            "name": "${NAME}-runtime",
+            "labels": {
+              "app": "${NAME}-runtime"
+          }
+        },
+        "spec": {
+            "output": {
+                "to": {
+                    "kind": "${RELEASE_KIND}",
+                    "name": "${RELEASE_NAME}:${RELEASE_VERSION}"
+                }
+            },
+            "triggers": [],
+            "postCommit": {},
+            "resources": {},
+            "runPolicy": "Serial",
+            "source": {
+                "type": "Docker",
+                "dockerfile": "\n\rFROM tomcat:8.5.9-jre8 \n\rCOPY catapult-1.32.war /usr/local/tomcat/webapps/ROOT.war\n\r",
+                "binary": {
+                    "asFile": "ROOT.war"
+                }
+            },
+            "strategy": {
+                "type": "docker",
+                "dockerStrategy": {
+                    "from": {
+                        "kind": "ImageStreamTag",
+                        "namespace":"theknights",
+                        "name": "tomcat:8.5.28-jdk8"
+                    }
+                }
+            }
+        }
+    },
+      {
+        "kind": "DeploymentConfig",
+        "apiVersion": "v1",
+        "metadata": {
+          "name": "${NAME}-runtime",
+          "annotations": {
+            "description": "Defines how to deploy the application server"
+          }
+        },
+        "spec": {
+          "strategy": {
+            "type": "Rolling"
+          },
+          "replicas": 1,
+          "selector": {
+            "name": "${NAME}-runtime"
+          },
+          "template": {
+            "metadata": {
+              "name": "${NAME}-runtime",
+              "labels": {
+                "name": "${NAME}-runtime"
+              }
+            },
+            "spec": {
+              "containers": [
+                {
+                  "name": "${NAME}-runtime",
+                  "image": "${RELEASE_NAME}:${RELEASE_VERSION}",
+                  "ports": [
+                    {
+                      "containerPort": 8080
+                    }
+                  ],
+                  "volumeMounts": [
+                    {
+                      "mountPath": "/etc/secrets/openshift",
+                      "name": "secret-openshift",
+                      "readOnly": true
+                    },
+                    {
+                      "mountPath": "/etc/secrets/bitbucket",
+                      "name": "secret-bitbucket",
+                      "readOnly": true
+                    },
+                    {
+                      "mountPath": "/etc/secrets/gitlab",
+                      "name": "secret-gitlab",
+                      "readOnly": true
+                    },
+                    {
+                      "mountPath": "/etc/secrets/bitbucket-pipeline-secret",
+                      "name": "secret-id-rsa",
+                      "readOnly": true
+                    },
+                    {
+                      "mountPath": "/etc/secrets/releaseregistrydsecret",
+                      "name": "secret-releaseregistry",
+                      "readOnly": true
+                    },
+                    {
+                      "name": "defaultpolicybindingtemplate-config",
+                      "mountPath": "/etc/catapult"
+                    }
+                  ],
+                  "readinessProbe": {
+                    "timeoutSeconds": 3,
+                    "initialDelaySeconds": 3,
+                    "tcpSocket": {
+                      "port": 8080
+                      }
+                  },
+                  "livenessProbe": {
+                      "timeoutSeconds": 3,
+                      "initialDelaySeconds": 30,
+                      "tcpSocket": {
+                          "port": 8080
+                      }
+                  }
+                }
+              ],
+              "volumes": [
+                {
+                  "name": "secret-openshift",
+                  "secret": {
+                    "defaultMode": 420,
+                    "secretName": "basic-auth-openshift"
+                  }
+                },
+                {
+                  "name": "secret-bitbucket",
+                  "secret": {
+                    "defaultMode": 420,
+                    "secretName": "basic-auth-bitbucket"
+                  }
+                },
+                {
+                  "name": "secret-id-rsa",
+                  "secret": {
+                    "defaultMode": 420,
+                    "secretName": "id-rsa-secrets"
+                  }
+                },
+                {
+                  "name": "secret-releaseregistry",
+                  "secret": {
+                    "defaultMode": 420,
+                    "secretName": "releaseregistrysecret"
+                  }
+                },
+                {
+                  "name": "secret-gitlab",
+                  "secret": {
+                    "defaultMode": 420,
+                    "secretName": "basic-auth-gitlab"
+                  }
+                },
+                {
+                  "name": "defaultpolicybindingtemplate-config",
+                  "configMap": {
+                    "name": "defaultpolicybindingtemplate-config",
+                    "defaultMode": 420
+                  }
+                }
+              ]
+            }
+          },
+          "test": false,
+          "triggers": [
+            {
+              "imageChangeParams": {
+                "automatic": true,
+                "containerNames": [
+                  "${NAME}-runtime"
+                ],
+                "from": {
+                  "kind": "ImageStreamTag",
+                  "name": "${NAME}-runtime:latest",
+                  "namespace": "${NAMESPACE}"
+                }
+              },
+              "type": "ImageChange"
+            },
+            {
+              "type": "ConfigChange"
+            }
+          ]
+        }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "ConfigMap",
+      "metadata": {
+        "name": "defaultpolicybindingtemplate-config"
+      },
+      "data": {
+        "defaultPolicyBindingTemplate.json": "{\n  \"name\": \"admin\",\n  \"roleBinding\": {\n    \"metadata\": {\n      \"creationTimestamp\": \"2018-03-08T12:45:09Z\",\n      \"name\": \"admin\",\n      \"namespace\": \"${NAMESPACE}\",\n      \"resourceVersion\": \"generated-by-catapult\"\n    },\n    \"userNames\": null,\n    \"groupNames\": [\n      \"default-security-group\"  ],\n    \"subjects\": [\n      {\n        \"kind\": \"Group\",\n        \"name\": \"default-security-group\"\n      }    ],\n    \"roleRef\": {\n      \"name\": \"admin\"\n    }\n  }\n}"
+      }
+    }
+  ],
+  "parameters": [
+    {
+      "name": "NAME",
+      "displayName": "Name",
+      "description": "The name assigned to all of the frontend objects defined in this template.",
+      "required": true,
+      "value": "catapult"
+    },
+    {
+      "name": "SOURCE_REPOSITORY_URL",
+      "displayName": "Git Repository URL",
+      "description": "The URL of the repository with your application source code.",
+      "required": true,
+      "value": "https://github.com/SallingGroup/catapult.git"
+    },
+    {
+      "name": "SOURCE_REPOSITORY_REF",
+      "displayName": "Git Reference",
+      "description": "Set this to a branch name, tag or other ref of your repository if you are not using the default branch.",
+      "value": "master"
+    },
+    {
+      "name": "NAMESPACE",
+      "displayName": "Namespace",
+      "description": "metadata namespace.",
+      "value": "catapult"
+    },
+    {
+      "name": "RELEASE_IMAGE",
+      "displayName": "Image name",
+      "description": "Image name (is this used).",
+      "value": "catapult-runtime"
+    },
+    {
+      "name": "RELEASE_NAME",
+      "displayName": "Image name",
+      "description": "Image name.",
+      "value": "catapult-runtime"
+    },
+    {
+      "name": "RELEASE_VERSION",
+      "displayName": "Version",
+      "description": "Image version tag.",
+      "value": "latest"
+    },
+    {
+      "name": "RELEASE_KIND",
+      "displayName": "image kind",
+      "description": "Image kind (ImageStreamTag or DockerImage).",
+      "value": "ImageStreamTag"
+    },
+    {
+      "name": "CONTEXT_DIR",
+      "displayName": "Context Directory",
+      "description": "Set this to the relative path to your project if it is not in the root of your repository."
+    },
+    {
+      "name": "APPLICATION_DOMAIN",
+      "displayName": "Application Hostname",
+      "description": "The exposed hostname that will route to the Node.js service, if left blank a value will be defaulted.",
+      "value": ""
+    }
+  ]
+}

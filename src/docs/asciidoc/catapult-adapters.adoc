@@ -1,0 +1,73 @@
+= Catapult Adapters
+Ole Gregersen ole.gregersen@sallinggroup.com
+2018-13-07
+:revnumber: {project-version}
+:example-caption!:
+ifndef::imagesdir[:imagesdir: images]
+ifndef::sourcedir[:sourcedir: ../../main/java]
+
+Catapult Adapters group tasks that need to run when a given state is activated.
+
+== Configuring adapters
+Adapters can be customized to extend or remove functionality in the Catapult.
+
+== CatapultAdapterFactory
+The adapter factory is responsible for creating the correct adapter for the current Catapult state.
+
+== CatapultAdapter
+All adapters must implement this interface.
+
+.Source file
+link:../../src/main/java/dk/theknights/catapult/strategies/adapter/CatapultAdapter.java[CatapultAdapter.java]
+
+== CatapultDoneStateAdapter
+For now there are no tasks assigned to be executed in the done state.
+
+.Source file
+link:../../src/main/java/dk/theknights/catapult/strategies/adapter/CatapultDoneStateAdapter.java[CatapultDoneStateAdapter.java]
+
+== CatapultInitialStateAdapter
+This adapter has tasks that need to run as the first thing. These are tasks like validate Catapult configuration or get
+the catapult template from the source repository.
+
+.Source file
+link:../../src/main/java/dk/theknights/catapult/strategies/adapter/CatapultInitialStateAdapter.java[CatapultInitialStateAdapter.java]
+
+== CatapultOpenShiftConfigMapsAdapter
+This adapter is responsible for tasks that apply to OpenShift configmaps. These tasks include create configmaps and fetch Catapult managed configmaps.
+
+.Source file
+link:../../src/main/java/dk/theknights/catapult/strategies/adapter/CatapultOpenShiftConfigMapsAdapter.java[CatapultOpenShiftConfigMapsAdapter.java]
+
+== CatapultOpenShiftProjectAdapter
+This adapter has tasks that apply to OpenShift projects. Thise include tasks like lookup OpenShift project and create OpenShift project.
+
+.Source file
+link:../../src/main/java/dk/theknights/catapult/strategies/adapter/CatapultOpenShiftProjectAdapter.java[CatapultOpenShiftProjectAdapter.java]
+
+== CatapultOpenShiftSecretsAdapter
+This adapter has tasks that apply to Catapult secrets. These include tasks like fetch catapult secrets and tasks for
+creating secrets that are managed by the Catapult and that are relevant for the OpenShift project.
+
+.Source file
+link:../../src/main/java/dk/theknights/catapult/strategies/adapter/CatapultOpenShiftSecretsAdapter.java[CatapultOpenShiftSecretsAdapter.java]
+
+== CatapultTemplateAdapter
+This adapter has tasks that apply to the Catapult template. This is where the Catapult will detect if the template has
+changed. It is also where the task for processing the catapult template is activated.
+
+.Source file
+link:../../src/main/java/dk/theknights/catapult/strategies/adapter/CatapultTemplateAdapter.java[CatapultTemplateAdapter.java]
+
+== PullRequestAdapter
+This adapter has all tasks that run as part of a pull request strategy.
+
+.Source file
+link:../../src/main/java/dk/theknights/catapult/strategies/adapter/PullRequestAdapter.java[PullRequestAdapter.java]
+
+== ReleaseAdapter
+This adapter has all tasks that run as part of the release strategy.
+
+.Source file
+link:../../src/main/java/dk/theknights/catapult/strategies/adapter/ReleaseAdapter.java[ReleaseAdapter.java]
+

@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout (~{::body},'genericwebhook')}">
+
+  <body>
+    <img src="../static/resources/images/pets.png" th:src="@{/resources/images/pets.png}"/>
+    <h2>Latest releases</h2>
+    <p th:text="${name}">Name</p>
+  </body>
+
+</html>

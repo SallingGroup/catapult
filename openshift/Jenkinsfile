@@ -1,0 +1,87 @@
+node('catapult-builder') {
+    stage ("checkout") {
+        checkout scm
+    }
+
+    stage("compile") {
+        try {
+            sh '''
+                mvn -B -Dmaven.test.skip=true compile
+                mvn -B -Dmaven.test.skip=true findbugs:findbugs
+            '''
+        } finally {
+            archive(includes: 'target/checkstyle*,target/findbugs/findbugsXml.html,target/findbugs/findbugsXml.xml')
+            step([
+                    $class: 'hudson.plugins.checkstyle.CheckStylePublisher',
+                    pattern: 'target/checkstyle-result.xml'])
+            step([
+                    $class: 'FindBugsPublisher',
+                    pattern: 'target/findbugs/*.xml'])
+            publishHTML(target: [
+                    allowMissing: false,
+                    alwaysLinkToLastBuild: false,
+                    keepAll     : true,
+                    reportDir   : 'target',
+                    reportFiles : 'checkstyle_report_simple.html',
+                    reportName  : 'Checkstyle Report',
+            ])
+        }
+    }
+
+    stage("static code checks") {
+        try {
+            sh '''
+                mvn -B pmd::pmd
+                mvn -B pmd::cpd
+                mvn dependency:analyze -DcheckDuplicateClasses
+            '''
+        } finally {
+            archive(includes: 'target/checkstyle*,target/pmd*,target/cpd*,target/site/**')
+            step([
+                    $class: 'PmdPublisher',
+                    pattern: 'target/pmd.xml'])
+            publishHTML(target: [
+                    allowMissing: false,
+                    alwaysLinkToLastBuild: false,
+                    keepAll     : true,
+                    reportDir   : 'target',
+                    reportFiles : 'report_pmd.html',
+                    reportName  : 'PMD Report',
+            ])
+        }
+    }
+
+    stage ("unit tests") {
+        try {
+            sh '''
+                mvn -B test
+                mvn cobertura:cobertura
+            '''
+        } finally {
+            archive(includes: 'target/surefire-reports/**, target/site/**')
+            junit('target/surefire-reports/*.xml')
+            step([
+                $class: 'CoberturaPublisher',
+                coberturaReportFile: 'target/site/cobertura/coverage.xml'
+            ])
+        }
+    }
+
+    stage ("package") {
+        sh '''
+            mvn -B -Dmaven.test.skip=true package
+        '''
+    }
+
+    stage ("build image") {
+        sh """
+		oc start-build catapult-runtime --from-file=target/catapult-1.32.war --follow --wait
+	"""
+    }
+
+    stage("Deploy Runtime Image") {
+        node(){
+            openshiftDeploy(depCfg: 'catapult-runtime', verbose: 'true', waitTime: '30', waitUnit: 'min')
+        }
+    }
+}

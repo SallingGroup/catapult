@@ -1,0 +1,15 @@
+= Todo
+Ole Gregersen ole.gregersen@sallinggroup.com
+2018-13-07
+:revnumber: {project-version}
+:example-caption!:
+ifndef::imagesdir[:imagesdir: images]
+ifndef::sourcedir[:sourcedir: ../../main/java]
+
+These are features that would be very nice to have implemented in the Catapult.
+
+* [ ] Webhook for GitHub
+* [ ] Webhook for GitLab
+* [ ] Catapult managed configmaps
+* [ ] Statistics
+* [ ] A nice dashboard

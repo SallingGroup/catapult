@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout (~{::body},'error')}">
+
+  <body>
+      <div style="width:800px;">
+          <div style="float:left;;width: 420px;">
+              <img src="../static/resources/images/kinghtssizematters.jpg" th:src="@{/resources/images/kinghtssizematters.jpg}"/>
+          </div>
+          <div style="float:left;width: 300px;">
+              <h2>Something happened...</h2>
+              <p th:text="${message}">Exception message</p>
+        </div>
+    </div>
+  </body>
+
+</html>

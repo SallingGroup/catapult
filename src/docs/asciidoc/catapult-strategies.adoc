@@ -1,0 +1,43 @@
+= Catapult strategies
+Ole Gregersen ole.gregersen@sallinggroup.com
+2018-13-07
+:revnumber: {project-version}
+:example-caption!:
+ifndef::imagesdir[:imagesdir: images]
+ifndef::sourcedir[:sourcedir: ../../main/java]
+
+A Catapult strategy is a group of states and tasks that, when executed, will produce an end result like a new OpenShift
+project without having to do any manual tasks.
+
+== Strategies
+
+The Catapult has three different strategies. These are Push-, Pull- and ReleaseStrategy. These strategies have a set of
+states where a set of tasks is executed.
+The transition between these different states is handled by the Push-, Pull- and ReleaseTransition classes.
+
+=== Pushrequest strategy
+The goal of the push request strategy is to ensure that if the source repository has a catapult template, an OpenShift
+project will be created with all the default permissions, secrets etc. without any manual tasks from the developer/user.
+This strategy is activated when the webhook trigger is a push request. This strategy will ensure that an OpenShift
+project exists and that annotated builds are executed. If the OpenShift project already exists, then only the build(s) are triggered.
+
+image::pushrequeststrategy.png[]
+
+=== Pullrequest strategy
+The goal of the pull request strategy is to provide some simple cleanup in OpenShift so projects that are no longer needed
+are removed.
+This strategy is activated when the webhook that was triggered is a pull request. This strategy will cleanup (Remove) the
+OpenShift project and the following push request will trigger the push request strategy and ensure that the annotated
+builds of that project will be executed.
+
+image::pullrequeststrategy.png[]
+
+=== Releaserequest strategy
+The goal of a release strategy is to build one or more images to an external repository so that theses images can be
+deployed/released to production environment(s). It is the goal for the release strategy to automate as much as possible
+regarding the release of new features on OpenShift projects.
+This strategy is activated when the webhook is a tag request. The release project will have the same name as the tag that
+was created and the annotated build(s) will be triggered to produce a release.
+This strategy will replace annotated imagestreams with a specified release repository where images will be pushed to during build.
+
+image::releaserequeststrategy.png[]

@@ -1,0 +1,96 @@
+= Catapult transitions
+Ole Gregersen ole.gregersen@sallinggroup.com
+2018-13-07
+:revnumber: {project-version}
+:example-caption!:
+ifndef::imagesdir[:imagesdir: images]
+ifndef::sourcedir[:sourcedir: ../../main/java]
+
+A Catapult transition is a way of defining how the current state changes to another one. The transitions implement a _next_
+method that will return the next state based on the current CatapultContext. The actual tasks for looking up OpenShift
+projects are located in the adapter that belongs to the current state. The transition only looks in the CatapultContext
+for things that are needed for entering the next state.
+The start state for all transitions is always INITIAL and the end state is always DONE.
+
+=== PushTransition
+* INITIAL +
+The pushTransition will look for a catapult template in the current CatapultContext.
+** CATAPULT TEMPLATE NOT FOUND +
+If it is not found, the current request is not for the Catapult and the CATAPULT TEMPLATE NOT FOUND state is entered.
+*** DONE +
+Nothing further will happen for this request.
+** CATAPULT TEMPLATE FOUND +
+If the template is found, the CATAPULT TEMPLATE FOUND state is entered. The next state is determined by looking at the OpenShift
+project.
+*** OPENSHIFT PROJECT FOUND +
+If it is found, the OPENSHIFT PROJECT FOUND state is entered. From here then next state is determined by looking at the
+template.
+**** CATAPULT TEMPLATE CHANGED +
+If the template has changed then CATAPULT TEMPLATE CHANGED state is entered, the template modifications will be processed
+and the respective build triggers will be activated.
+***** DONE
+**** CATAPULT TEMPLATE NOT CHANGED +
+If the template has not changed, then the CATAPULT TEMPLATE NOT CHANGED state is entered, and any respective build triggers are triggered.
+***** DONE
+*** OPENSHIFT PROJECT NOT FOUND +
+If no OpenShift project was found then OPENSHIFT PROJECT NOT FOUND state is entered. The next state is determined by looking
+at the OpenShift project and waiting for it to be created so the OPENSHIFT PROJECT CREATED state can be entered.
+**** OPENSHIFT PROJECT CREATED
+
+==== CatapultOpenShiftPolicyBindingsTransition
+Now the transition will look at policybindings and enter the POLICY BINDINGS UPDATED state when they are updated.
+This is implemented in a separate transition so it can be reused and so the corresponding adapter implementation can be customized.
+
+==== CatapultOpenShiftSecretsTransition
+The next transiton is for secrets. If there are no secrets to manage for this request, the NO SECRETS FOUND state is entered, otherwise the SECRETS UPDATES
+state is entered.
+
+==== CatapultOpenShiftConfigMapsTransition
+The next transition is for configmaps, if there are no configmaps found, then the NO CONFIGMAPS FOUND state is entered,
+otherwise the CONFIGMAPS UPDATED state is entered.
+
+It is now time for the transition to determine if OpenShift could process
+the catapult template. If there are errors, then the CATAPULT TEMPLATE PROCESS ERROR state is entered, otherwise the CATAPULT TEMPLATE PROCESSED state is entered.
+The transition is now finished and ends with the state DONE.
+This transition is also illustrated on figure 1 below.
+
+[#img-pushtransition]
+.PushTransition
+image::pushrequeststrategy.png[]
+
+=== PullRequestTransition
+* INITIAL +
+The PullTransition will first determine if the request repository has a catapult template.
+** CATAPULT TEMPLATE NOT FOUND +
+If a template is not found, then nothing is done for this request.
+*** DONE
+** CATAPULT TEMPLATE FOUND +
+If a template is found, then the project is looked up in OpenShift.
+*** OPENSHIFT PROJECT NOT FOUND +
+If no project is found in OpenShift, then the state is changed to OPENSHIFT PROJECT NOT FOUND and nothing will happen for this request.
+**** DONE
+*** OPENSHIFT PROJECT FOUND +
+If an OpenShift project is found, it will be deleted
+**** OPENSHIFT PROJECT DELETED +
+Once the project is deleted, the catapult will enter the OPENSHIFT PROJECT DELETED state and nothing more will happen for this request.
+***** DONE
+
+This transition is also illustrated on figure 2 below.
+
+[#img-pulltransition]
+.PullTransition
+image::pullrequeststrategy.png[]
+
+=== ReleaseTransition
+* INITIAL +
+The ReleaseTransition will look for an OpenShift project in the current context.
+** RELEASE PROJECT FOUND +
+If an OpenShift release project is found then the next state is RELEASE PROJECT FOUND. The found project will be removed and a new lookup will be performed.
+The state will remain RELEASE PROJECT FOUND while any viable release projects are found.
+** RELEASE PROJECT NOT FOUND +
+If no release project is found (either by no release project existing or all having been removed), the transition will enter RELEASE PROJECT NOT FOUND. +
+After entering RELEASE PROJECT NOT FOUND the state transition will continue as a PushTransition.
+
+[#img-releasetransition]
+.ReleaseTransition
+image::releaserequeststrategy.png[]

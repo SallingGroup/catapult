@@ -1,0 +1,29 @@
+= Catapult Manual
+Ole Gregersen ole.gregersen@sallinggroup.com
+2018-13-07
+:revnumber: {project-version}
+:example-caption!:
+ifndef::imagesdir[:imagesdir: images]
+ifndef::sourcedir[:sourcedir: ../../main/java]
+
+This is the manual for the catapult project. Read this to learn how to get started using the catapult on OpenShift.
+This manual also covers how to contribute to this project.
+
+== Introduction
+
+This project does something.
+We just haven't decided what that is yet.
+
+
+This page was built by the following command:
+
+ $ mvn
+
+== Get started locally
+
+== Install on OpenShift
+
+== How to contribute
+
+== Issue tracker
+

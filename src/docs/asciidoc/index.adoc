@@ -1,0 +1,36 @@
+[[welcome-index]]
+= Catapult
+Ole Gregersen ole.gregersen@sallinggroup.com
+2018-13-07
+:revnumber: {project-version}
+:example-caption!:
+ifndef::imagesdir[:imagesdir: images]
+ifndef::sourcedir[:sourcedir: ../../main/java]
+
+This is a description of the catapult config. You will find a guide for configuring the Catapult runtime and an explanation of the classes that are used for configuring the Catapult.
+
+= Introduction
+
+:leveloffset: +1
+
+include::catapult-config.adoc[]
+
+include::catapult-model.adoc[]
+
+include::catapult-interfaces.adoc[]
+
+include::catapult-strategies.adoc[]
+
+include::catapult-states.adoc[]
+
+include::catapult-transitions.adoc[]
+
+include::catapult-adapters.adoc[]
+
+include::catapult-tasks.adoc[]
+
+include::catapult-knownissues.adoc[]
+
+include::catapult-todo.adoc[]
+
+:leveloffset: -1
