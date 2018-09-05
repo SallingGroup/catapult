@@ -88,18 +88,18 @@ public class CatapultAdapterFactory {
 			case CATAPULT_TEMPLATE_FOUND:
 			case OPENSHIFT_PROJECT_FOUND:
 			case OPENSHIFT_PROJECT_NOT_FOUND:
-				return new CatapultOpenShiftProjectAdapter();
-			case CATAPULT_TEMPLATE_NOT_CHANGED:
-			case CATAPULT_TEMPLATE_CHANGED:
-				return new CatapultTemplateAdapter();
 			case OPENSHIFT_PROJECT_CREATED:
 				return new CatapultOpenShiftProjectAdapter();
 			case POLICY_BINDINGS_UPDATED:
 			case NO_SECRETS_FOUND:
 				return new CatapultOpenShiftSecretsAdapter();
+			case CATAPULT_TEMPLATE_NOT_CHANGED:
+			case CATAPULT_TEMPLATE_CHANGED:
 			case SECRETS_UPDATED:
 			case NO_CONFIGMAPS_FOUND:
 			case CONFIGMAPS_UPDATED:
+			case CATAPULT_TEMPLATE_PROCESSED:
+			case CATAPULT_TEMPLATE_PROCESS_ERROR:
 				return new CatapultTemplateAdapter();
 			case CATAPULT_DONE:
 				return new CatapultDoneStateAdapter();

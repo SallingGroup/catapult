@@ -6,6 +6,10 @@ import dk.theknights.catapult.model.webhook.AbstractWebHook;
  * Created by Ole Gregersen (ole.gregersen@sallinggroup.com) on 3/8/18.
  */
 public class StubbedBitbucketWebhook extends AbstractWebHook {
+
+	private boolean isTag;
+	private boolean isPullRequest;
+
 	@Override
 	public String getRepositoryUrl() {
 		return "https://bitbucket.org/fakerepo";
@@ -53,7 +57,7 @@ public class StubbedBitbucketWebhook extends AbstractWebHook {
 
 	@Override
 	public boolean isTag() {
-		return false;
+		return isTag;
 	}
 
 	@Override
@@ -63,7 +67,7 @@ public class StubbedBitbucketWebhook extends AbstractWebHook {
 
 	@Override
 	public boolean isPullRequest() {
-		return false;
+		return isPullRequest;
 	}
 
 	@Override
@@ -74,5 +78,13 @@ public class StubbedBitbucketWebhook extends AbstractWebHook {
 	@Override
 	public String getPullRequestSourceName() {
 		return null;
+	}
+
+	public void setIsTag(final boolean isTag) {
+		this.isTag = isTag;
+	}
+
+	public void setIsPullRequest(final boolean isPullRequest) {
+		this.isPullRequest = isPullRequest;
 	}
 }

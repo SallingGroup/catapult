@@ -35,13 +35,9 @@ public class PullRequestStrategy {
 	public void execute(final CatapultContext context) throws InvalidCatapultStateException {
 		CatapultStateEnum currentState = context.getCatapultState();
 		while (currentState != CatapultStateEnum.CATAPULT_DONE) {
-			try {
-				CatapultAdapter adapter = context.getCatapultAdapter(context);
-				if (adapter.accept(context)) {
-					adapter.process(context);
-				}
-			} catch (InvalidCatapultStateException e) {
-				logger.error("No catapult adapter for state (" + context.getCatapultState() + ")", e);
+			CatapultAdapter adapter = context.getCatapultAdapter(context);
+			if (adapter.accept(context)) {
+				adapter.process(context);
 			}
 			currentState = transition.next(context);
 			logger.info(context.getId() + ": Changing state from (" + context.getCatapultState() + ") to (" + currentState + ")");
