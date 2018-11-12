@@ -56,19 +56,19 @@ public class CatapultAdapterFactoryTest {
 	}
 
 	@Test
-	public void testInitialStateReleaseRequest() throws InvalidCatapultStateException {
+	public void testInitialStateTagRequest() throws InvalidCatapultStateException {
 		// Arrange
 		CatapultContext context = new CatapultContext();
 		context.setCatapultState(CatapultStateEnum.INITIAL);
 		StubbedBitbucketWebhook webhoook = Mockito.spy(new StubbedBitbucketWebhook());
-		doReturn(RequestTypeEnum.RELEASE_REQUEST).when(webhoook).getRequestType();
+		doReturn(RequestTypeEnum.TAG_REQUEST).when(webhoook).getRequestType();
 		context.setWebhook(webhoook);
 
 		// Act
 		CatapultAdapter catapultAdapter = catapultAdapterFactory.create(context);
 
 		// Assert
-		assertThat("catapultAdapter must be instance of CatapultOpenShiftProjectAdapter when given " + CatapultStateEnum.INITIAL + " state", catapultAdapter, instanceOf(ReleaseAdapter.class));
+		assertThat("catapultAdapter must be instance of CatapultOpenShiftProjectAdapter when given " + CatapultStateEnum.INITIAL + " state", catapultAdapter, instanceOf(TagAdapter.class));
 	}
 
 	@Test(expected = InvalidCatapultStateException.class)

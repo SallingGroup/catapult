@@ -4,6 +4,7 @@ import dk.theknights.catapult.CatapultContext;
 import dk.theknights.catapult.strategies.StubbedBitbucketWebhook;
 import dk.theknights.catapult.strategies.StubbedOpenShiftProject;
 import dk.theknights.catapult.strategies.StubbedOpenShiftService;
+import dk.theknights.catapult.strategies.state.CatapultStateEnum;
 import org.hamcrest.collection.IsEmptyCollection;
 import org.junit.Test;
 import org.mockito.ArgumentMatchers;
@@ -13,6 +14,7 @@ import java.io.IOException;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -57,6 +59,30 @@ public class CatapultTriggerOpenShiftBuildTaskTest {
 		// Assert
 		assertNotNull("context can not have buildtriggered list null", context.getBuildsTriggered());
 		assertThat(context.getBuildsTriggered(), IsEmptyCollection.empty());
+	}
+
+	@Test
+	public void testAcceptCatapultTemplateChangedState() throws IOException {
+		// Arrange
+		CatapultTriggerOpenShiftBuildTask task = new CatapultTriggerOpenShiftBuildTask();
+
+		// Act
+		boolean accepted = task.accept(CatapultStateEnum.CATAPULT_TEMPLATE_CHANGED);
+
+		// Assert
+		assertTrue("Task must accept CATAPULT_TEMPLATE_CHANGED state", accepted);
+	}
+
+	@Test
+	public void testAcceptCatapultTemplateProcessedState() throws IOException {
+		// Arrange
+		CatapultTriggerOpenShiftBuildTask task = new CatapultTriggerOpenShiftBuildTask();
+
+		// Act
+		boolean accepted = task.accept(CatapultStateEnum.CATAPULT_TEMPLATE_PROCESSED);
+
+		// Assert
+		assertTrue("Task must accept CATAPULT_TEMPLATE_CHANGED state", accepted);
 	}
 
 }

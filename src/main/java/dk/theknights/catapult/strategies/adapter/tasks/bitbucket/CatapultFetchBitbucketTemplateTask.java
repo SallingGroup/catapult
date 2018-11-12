@@ -9,7 +9,9 @@ import dk.theknights.catapult.strategies.state.CatapultStateEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.NoSuchElementException;
 
 /**
  * This task will use the Bitbucket API to fetch the json template from source repository. If successful Catapult context is updated.
@@ -41,12 +43,15 @@ public class CatapultFetchBitbucketTemplateTask implements CatapultAdapterTask {
 	 */
 	public void perform(final CatapultContext context) {
 		String url = context.getWebhook().getRepositoryUrl();
-		url += "/raw/" + context.getWebhook().getCommitId() + CATAPULT_FILE;
-
 		try {
+			url += "/raw/" + context.getWebhook().getCommitId() + CATAPULT_FILE;
+
 			BitbucketAPI bitbucketAPI = getBitbucketAPI(context.getCatapultConfig());
 			context.setCatapultTemplate(getCatapultTemplate(bitbucketAPI.getRawCommit(url)));
-		} catch (IOException e) {
+		} catch (FileNotFoundException fnfe) {
+			logger.warn("Catapult template file not found in repository ({}). Assuming that this is not a Catapult project because template ({}) is missing. Please verify that webhook is really needed in the Bitbucket project for branch ({}).", context.getWebhook().getRepositoryName(), url, context.getWebhook().getBranchName());
+			context.setCatapultTemplate(null);
+		} catch (IOException | NoSuchElementException e) {
 			logger.error("Need to do something about this try/catch", e);
 			context.setCatapultTemplate(null);
 		}

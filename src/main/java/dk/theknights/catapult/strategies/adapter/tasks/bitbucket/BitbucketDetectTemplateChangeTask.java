@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 
 /**
- * Created by Ole Gregersen (ole.gregersen@sallinggruop.com) on 8/29/18.
+ * Created by Ole Gregersen (ole.gregersen@dsg.dk) on 8/29/18.
  */
 public class BitbucketDetectTemplateChangeTask implements CatapultAdapterTask {
 

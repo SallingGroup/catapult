@@ -27,8 +27,8 @@ public class CatapultTriggerOpenShiftBuildTask implements CatapultAdapterTask {
 	 */
 	@Override
 	public boolean accept(final CatapultStateEnum state) {
-		if (state.equals(CatapultStateEnum.NO_CONFIGMAPS_FOUND)
-			|| state.equals(CatapultStateEnum.CONFIGMAPS_UPDATED)
+		if (state.equals(CatapultStateEnum.CATAPULT_TEMPLATE_CHANGED)
+			|| state.equals(CatapultStateEnum.CATAPULT_TEMPLATE_PROCESSED)
 			|| state.equals(CatapultStateEnum.CATAPULT_TEMPLATE_NOT_CHANGED)) {
 			return true;
 		}

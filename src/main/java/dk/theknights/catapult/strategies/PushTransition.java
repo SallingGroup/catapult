@@ -42,7 +42,7 @@ public class PushTransition implements Transition {
 				return newState;
 			}
 		}
-		return null;
+		return CatapultStateEnum.CATAPULT_DONE;
 	}
 
 }

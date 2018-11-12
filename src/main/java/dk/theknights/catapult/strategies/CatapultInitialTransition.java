@@ -4,7 +4,7 @@ import dk.theknights.catapult.CatapultContext;
 import dk.theknights.catapult.strategies.state.CatapultStateEnum;
 
 /**
- * Created by Ole Gregersen (ole.gregersen@sallinggroup.com) on 8/30/18.
+ * Created by Ole Gregersen (ole.gregersen@dsg.dk) on 8/30/18.
  */
 public class CatapultInitialTransition implements Transition {
 

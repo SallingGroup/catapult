@@ -16,7 +16,6 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.hamcrest.CoreMatchers.instanceOf;
 
@@ -182,6 +181,7 @@ public class PushTransitionTest {
 	public void testOpenShiftProjectNotFoundToOpenShiftProjectCreated() throws InvalidCatapultStateException {
 		// Arrange
 		context.setCatapultState(CatapultStateEnum.OPENSHIFT_PROJECT_NOT_FOUND);
+		context.setOpenShiftProject(new StubbedOpenShiftProject());
 
 		// Act
 		CatapultStateEnum state = transition.next(context);
@@ -191,6 +191,21 @@ public class PushTransitionTest {
 		assertNotNull("Adapter cannot be null.", context.getCatapultAdapter(context));
 		assertThat("Adapter must be CatapultOpenShiftProjectAdapter class!", context.getCatapultAdapter(context), instanceOf(CatapultOpenShiftProjectAdapter.class));
 		assertEquals("State must be <" + CatapultStateEnum.OPENSHIFT_PROJECT_CREATED + ">", state, CatapultStateEnum.OPENSHIFT_PROJECT_CREATED);
+	}
+
+	@Test
+	public void testOpenShiftProjectNotFoundToCatapultDone() throws InvalidCatapultStateException {
+		// Arrange
+		context.setCatapultState(CatapultStateEnum.OPENSHIFT_PROJECT_NOT_FOUND);
+
+		// Act
+		CatapultStateEnum state = transition.next(context);
+
+		// Assert
+		assertNotNull("CatapultState can not be null.", state);
+		assertNotNull("Adapter cannot be null.", context.getCatapultAdapter(context));
+		assertThat("Adapter must be CatapultOpenShiftProjectAdapter class!", context.getCatapultAdapter(context), instanceOf(CatapultOpenShiftProjectAdapter.class));
+		assertEquals("State must be <" + CatapultStateEnum.CATAPULT_DONE + ">", state, CatapultStateEnum.CATAPULT_DONE);
 	}
 
 	@Test
@@ -402,7 +417,7 @@ public class PushTransitionTest {
 		CatapultStateEnum state = transition.next(context);
 
 		// Assert
-		assertNull("CatapultState can not be null.", state);
+		assertEquals("CatapultState can must be CATAPULT_DONE.", state, CatapultStateEnum.CATAPULT_DONE);
 		assertNotNull("Adapter cannot be null.", context.getCatapultAdapter(context));
 		assertThat("Adapter must be CatapultDoneAdapter class!", context.getCatapultAdapter(context), instanceOf(CatapultDoneStateAdapter.class));
 	}

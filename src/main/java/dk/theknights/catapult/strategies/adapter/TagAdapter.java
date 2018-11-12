@@ -17,18 +17,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This adapter holds all tasks that need to execute in the release strategy.
+ * This adapter holds all tasks that need to execute in the tag strategy.
  *
  * Created by Ole Gregersen (ole.gregersen@sallinggroup.com) on 4/20/18.
  */
-public class ReleaseAdapter implements CatapultAdapter {
+public class TagAdapter implements CatapultAdapter {
 
 	private List<CatapultAdapterTask> tasks = new ArrayList<CatapultAdapterTask>();
 
 	/**
-	 * Initialize with tasks that need to execute in the release strategy
+	 * Initialize with tasks that need to execute in the tag strategy
 	 */
-	public ReleaseAdapter() {
+	public TagAdapter() {
 		tasks.add(new CatapultStatisticsTask());
 		tasks.add(new ReleaseProjectLookupTask());
 		tasks.add(new CatapultDeleteOpenShiftProjectTask());
@@ -38,7 +38,7 @@ public class ReleaseAdapter implements CatapultAdapter {
 		tasks.add(new ReleaseProjectUpdateDisplayNameTask());
 	}
 
-	public List<CatapultAdapterTask> getTasks() { // this is only public because of ReleaseAdapterTest
+	public List<CatapultAdapterTask> getTasks() { // this is only public because of TagAdapterTest
 		return tasks;
 	}
 

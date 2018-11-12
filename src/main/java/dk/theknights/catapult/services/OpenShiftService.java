@@ -10,6 +10,7 @@ import com.openshift.internal.restclient.model.template.Template;
 import com.openshift.restclient.ClientBuilder;
 import com.openshift.restclient.IClient;
 import com.openshift.restclient.ResourceKind;
+import com.openshift.restclient.authorization.ResourceForbiddenException;
 import com.openshift.restclient.capability.CapabilityVisitor;
 import com.openshift.restclient.capability.resources.IBuildTriggerable;
 import com.openshift.restclient.capability.server.ITemplateProcessing;
@@ -41,6 +42,8 @@ import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collection;
@@ -59,7 +62,8 @@ public class OpenShiftService {
 	protected final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	protected final String openshiftSecretPath = EnvironmentUtility.getEnv(SECRET_OPENSHIFT_PATH, "/etc/openshift");
-	protected final String openShiftEndpoint = EnvironmentUtility.getEnv(OPENSHIFT_MASTER_ENDPOINT, "https://kubernetes.default");
+	protected final String openshiftEndpoint = EnvironmentUtility.getEnv(OPENSHIFT_MASTER_ENDPOINT, "https://kubernetes.default");
+	protected final String openshiftServiceAccountLocation = "/var/run/secrets/kubernetes.io/serviceaccount";
 
 	private CatapultConfig configuration;
 
@@ -107,8 +111,9 @@ public class OpenShiftService {
 		IClient client = getOpenShiftClient();
 		OpenshiftProjectRequest resourceRequest = client.getResourceFactory().stub(ResourceKind.PROJECT_REQUEST, namespace);
 
-		IProject project = (IProject) client.create(resourceRequest);
+		IProject project = null;
 		try {
+			project = (IProject) client.create(resourceRequest);
 			IPolicyBinding policyBinding = getPolicyBinding(":default", project);
 
 			String json = policyBinding.toJson();
@@ -129,6 +134,9 @@ public class OpenShiftService {
 			template.setNamespace(project.getNamespace());
 
 			client.update(template);
+		} catch (ResourceForbiddenException rfe) {
+			logger.error("Catapult was forbidden from creating the project {}. Catapult cannot continue without an OpenShift project and will stop processing. Does the catapult service account have the correct permissions or is the secret-auth-openshift secret configured correctly?", namespace);
+			throw new IOException();
 		} catch (RuntimeException e) {
 			logger.error(e.getLocalizedMessage(), e);
 		}
@@ -445,11 +453,17 @@ public class OpenShiftService {
 
 	protected IClient getOpenShiftClient() throws IOException {
 		UserLogin login = getLogin(openshiftSecretPath);
-		IClient client = new ClientBuilder(openShiftEndpoint)
-				.withUserName(login.getUsername())
-				.withPassword(login.getPassword())
-				.build();
-
+		IClient client;
+		if (login.getUsername() != null && login.getPassword() != null) {
+			client = new ClientBuilder(openshiftEndpoint)
+					.withUserName(login.getUsername())
+					.withPassword(login.getPassword())
+					.build();
+		} else {
+			client = new ClientBuilder(openshiftEndpoint)
+					.usingToken(login.getToken())
+					.build();
+		}
 		return client;
 	}
 
@@ -459,13 +473,19 @@ public class OpenShiftService {
 
 	@SuppressFBWarnings("DM_DEFAULT_ENCODING")
 	protected UserLogin getLogin(final String path) throws IOException {
-		String usernameFile = path + "/username";
-		String username = IOUtils.toString(new FileReader(usernameFile));
+		Path usernamePath = Paths.get(path, "username");
+		Path passwordPath = Paths.get(path, "password");
+		File usernameFile = usernamePath.toFile();
+		File passwordFile = passwordPath.toFile();
+		if (usernameFile.exists() && passwordFile.exists()) {
+			String username = IOUtils.toString(new FileReader(usernameFile));
+			String password = IOUtils.toString(new FileReader(passwordFile));
 
-		String passwordFile = path + "/password";
-		String password = IOUtils.toString(new FileReader(passwordFile));
-
-		return new UserLogin(username, password);
+			return new UserLogin(username, password);
+		}
+		Path openshiftServiceAccountTokenPath = Paths.get(openshiftServiceAccountLocation, "token");
+		String token = IOUtils.toString(new FileReader(openshiftServiceAccountTokenPath.toFile()));
+		return new UserLogin(token);
 	}
 
 	/**

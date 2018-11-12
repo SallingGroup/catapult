@@ -25,7 +25,11 @@ public class CatapultOpenShiftProjectTransition implements Transition {
 					return CatapultStateEnum.CATAPULT_TEMPLATE_NOT_CHANGED;
 				}
 			case OPENSHIFT_PROJECT_NOT_FOUND:
-				return CatapultStateEnum.OPENSHIFT_PROJECT_CREATED;
+				if (context.getOpenShiftProject() == null) {
+					return CatapultStateEnum.CATAPULT_DONE;
+				} else {
+					return CatapultStateEnum.OPENSHIFT_PROJECT_CREATED;
+				}
 			case OPENSHIFT_PROJECT_CREATED:
 				return CatapultStateEnum.POLICY_BINDINGS_UPDATED;
 			default:

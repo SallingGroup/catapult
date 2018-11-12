@@ -5,9 +5,8 @@ import dk.theknights.catapult.config.CatapultConfig;
 import dk.theknights.catapult.model.webhook.bitbucket.BitbucketWebhook;
 import dk.theknights.catapult.model.webhook.github.GitHubWebhook;
 import dk.theknights.catapult.model.webhook.gitlab.GitLabWebhook;
-import dk.theknights.catapult.strategies.PullRequestStrategy;
-import dk.theknights.catapult.strategies.PushStrategy;
-import dk.theknights.catapult.strategies.ReleaseStrategy;
+import dk.theknights.catapult.strategies.CatapultStrategy;
+import dk.theknights.catapult.strategies.StrategyFactory;
 import dk.theknights.catapult.strategies.state.InvalidCatapultStateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,32 +53,12 @@ class GenericWebhookController {
 		logger.info(context.getId() + ": remoteAddr: " + request.getRemoteAddr());
 
 		try {
-			switch (body.getRequestType()) {
-				case PUSH_REQUEST:
-					logger.info("Handle pushrequest webhook.getRequestType (" + body.getRequestType() + ")");
-					PushStrategy pushstrategy = new PushStrategy();
-					pushstrategy.execute(context);
-					body.setStatus("200");
-					break;
-				case PULL_REQUEST:
-					logger.info("Handle pullrequest webhook.getRequestType (" + body.getRequestType() + ")");
-					PullRequestStrategy strategy = new PullRequestStrategy();
-					strategy.execute(context);
-					body.setStatus("200");
-					break;
-				case RELEASE_REQUEST:
-					logger.error("Handle release webhook.getRequestType (" + body.getRequestType() + ")");
-					ReleaseStrategy releaseStrategy = new ReleaseStrategy();
-					releaseStrategy.execute(context);
-					body.setStatus("200");
-					break;
-				default:
-					logger.error("Invalid request posted. I choose to ignore this!");
-					body.setStatus("500");
-					break;
-			}
+			logger.info("Handle (" + context.getWebhook().getRequestType() + ") webhook.getRequestType (" + body.getRequestType() + ")");
+			CatapultStrategy strategy = StrategyFactory.create(context);
+			strategy.execute(context);
+			body.setStatus("200");
 		} catch (InvalidCatapultStateException e) {
-			logger.error("Problem with catapult transitions", e);
+			logger.error(e.getMessage(), e);
 			body.setStatus("500");
 		}
 
@@ -104,32 +83,12 @@ class GenericWebhookController {
 		logger.info("remoteAddr: " + request.getRemoteAddr());
 
 		try {
-			switch (body.getRequestType()) {
-				case PUSH_REQUEST:
-					logger.info("Handle pushrequest webhook.getRequestType (" + body.getRequestType() + ")");
-					PushStrategy pushstrategy = new PushStrategy();
-					pushstrategy.execute(context);
-					body.setStatus("200");
-					break;
-				case PULL_REQUEST:
-					logger.info("Handle pullrequest webhook.getRequestType (" + body.getRequestType() + ")");
-					PullRequestStrategy strategy = new PullRequestStrategy();
-					strategy.execute(context);
-					body.setStatus("200");
-					break;
-				case RELEASE_REQUEST:
-					logger.error("Handle release webhook.getRequestType (" + body.getRequestType() + ")");
-					ReleaseStrategy releaseStrategy = new ReleaseStrategy();
-					releaseStrategy.execute(context);
-					body.setStatus("200");
-					break;
-				default:
-					logger.error("Invalid request posted. I choose to ignore this!");
-					body.setStatus("500");
-					break;
-			}
+			logger.info("Handle (" + context.getWebhook().getRequestType() + ") webhook.getRequestType (" + body.getRequestType() + ")");
+			CatapultStrategy strategy = StrategyFactory.create(context);
+			strategy.execute(context);
+			body.setStatus("200");
 		} catch (InvalidCatapultStateException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage(), e);
 			body.setStatus("500");
 		}
 

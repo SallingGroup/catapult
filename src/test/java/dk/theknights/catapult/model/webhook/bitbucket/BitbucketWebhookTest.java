@@ -60,7 +60,6 @@ public class BitbucketWebhookTest {
 		assertTrue("Project name must match: " + PROJECT_NAME_REGEX + " Project name was (" + openshiftProjectName + ")", matches);
 	}
 
-
 	@Test
 	public void testGetOpenShiftProjectNameLongerThan76Characters() {
 		// Arrange

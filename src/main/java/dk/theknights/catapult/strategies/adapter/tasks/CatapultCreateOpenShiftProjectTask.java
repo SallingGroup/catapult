@@ -2,8 +2,10 @@ package dk.theknights.catapult.strategies.adapter.tasks;
 
 import com.openshift.restclient.model.IProject;
 import dk.theknights.catapult.CatapultContext;
+import dk.theknights.catapult.CatapultException;
 import dk.theknights.catapult.services.OpenShiftService;
 import dk.theknights.catapult.strategies.state.CatapultStateEnum;
+import dk.theknights.catapult.strategies.state.InvalidCatapultStateException;
 
 import java.io.IOException;
 
@@ -35,7 +37,7 @@ public class CatapultCreateOpenShiftProjectTask implements CatapultAdapterTask {
 	 * @param context Current Catapult context
 	 */
 	@Override
-	public void perform(final CatapultContext context) {
+	public void perform(final CatapultContext context) throws CatapultException {
 		if (context.getOpenShiftProject() == null) {
 			try {
 				OpenShiftService openshiftService = getOpenShiftService();
@@ -45,7 +47,8 @@ public class CatapultCreateOpenShiftProjectTask implements CatapultAdapterTask {
 				context.setOpenShiftProject(project);
 				context.setNewProject(true);
 			} catch (IOException e) {
-				e.printStackTrace();
+				context.setCatapultState(CatapultStateEnum.CATAPULT_DONE);
+				throw new InvalidCatapultStateException(e);
 			}
 		}
 	}

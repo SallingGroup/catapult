@@ -44,8 +44,8 @@ public class CatapultAdapterFactory {
 					return new CatapultInitialStateAdapter();
 				} else if (webhook.getRequestType().equals(RequestTypeEnum.PULL_REQUEST)) {
 					return new PullRequestAdapter();
-				} else if (webhook.getRequestType().equals(RequestTypeEnum.RELEASE_REQUEST)) {
-					return new ReleaseAdapter();
+				} else if (webhook.getRequestType().equals(RequestTypeEnum.TAG_REQUEST)) {
+					return new TagAdapter();
 				} else {
 					throw new InvalidCatapultStateException();
 				}
@@ -61,8 +61,8 @@ public class CatapultAdapterFactory {
 			case OPENSHIFT_PROJECT_CREATED:
 			case RELEASE_PROJECT_NOT_FOUND:
 			case RELEASE_PROJECT_FOUND:
-				if (webhook.getRequestType().equals(RequestTypeEnum.RELEASE_REQUEST)) {
-					return new ReleaseAdapter();
+				if (webhook.getRequestType().equals(RequestTypeEnum.TAG_REQUEST)) {
+					return new TagAdapter();
 				} else {
 					return create(context.getCatapultState());
 				}

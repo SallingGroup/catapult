@@ -9,6 +9,7 @@ public class UserLogin {
 
 	private String username;
 	private String password;
+	private String token;
 
 	/**
 	 * Initialize UserLogin class with username and password
@@ -18,6 +19,10 @@ public class UserLogin {
 	public UserLogin(final String username, final String password) {
 		this.username = username;
 		this.password = password;
+	}
+
+	public UserLogin(final String token) {
+		this.token = token;
 	}
 
 	/**
@@ -54,6 +59,15 @@ public class UserLogin {
 	 */
 	public String getPassword() {
 		return password;
+	}
+
+	/**
+	 * Get token used for logging in.
+	 *
+	 * @return the token to be used for logging in
+	 */
+	public String getToken() {
+		return token;
 	}
 
 }

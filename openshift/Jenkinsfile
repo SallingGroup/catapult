@@ -6,6 +6,7 @@ node('catapult-builder') {
     stage("compile") {
         try {
             sh '''
+                NODE_ENV="production" \
                 mvn -B -Dmaven.test.skip=true compile
                 mvn -B -Dmaven.test.skip=true findbugs:findbugs
             '''
@@ -69,6 +70,7 @@ node('catapult-builder') {
 
     stage ("package") {
         sh '''
+            NODE_ENV="production" \
             mvn -B -Dmaven.test.skip=true package
         '''
     }

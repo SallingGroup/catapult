@@ -9,6 +9,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.NoSuchElementException;
 
 /**
  * Bitbucket webhook model. This is populated from json posted to the request controller.
@@ -238,9 +239,15 @@ public class BitbucketWebhook extends AbstractWebHook {
 			case PULL_REQUEST:
 				return getPullrequest().getSource().getCommit().getHash();
 			default:
-				return getPush().getChanges().get(0).getNew().getTarget().getHash();
+				Push push = getPush();
+				if (push != null
+					&& push.getChanges() != null
+					&& push.getChanges().get(0) != null
+					&& push.getChanges().get(0).getNew() != null) {
+					return push.getChanges().get(0).getNew().getTarget().getHash();
+				}
+				throw new NoSuchElementException("New element in webhook payload is null");
 		}
-
 	}
 
 	/**
@@ -271,7 +278,7 @@ public class BitbucketWebhook extends AbstractWebHook {
 				boolean found = false;
 				int index = 0;
 				while (!found && index < mappingSplit.length) {
-					if (mappingSplit[index].startsWith(tmpProjectName)) {
+					if (mappingSplit[index].startsWith(tmpProjectName + "=")) {
 						String mapping = mappingSplit[index];
 						String value = mapping.split("=")[1];
 						return value;

@@ -81,9 +81,9 @@ This transition is also illustrated on figure 2 below.
 .PullTransition
 image::pullrequeststrategy.png[]
 
-=== ReleaseTransition
+=== TagTransition
 * INITIAL +
-The ReleaseTransition will look for an OpenShift project in the current context.
+The TagTransition will look for an OpenShift project in the current context.
 ** RELEASE PROJECT FOUND +
 If an OpenShift release project is found then the next state is RELEASE PROJECT FOUND. The found project will be removed and a new lookup will be performed.
 The state will remain RELEASE PROJECT FOUND while any viable release projects are found.
@@ -91,6 +91,6 @@ The state will remain RELEASE PROJECT FOUND while any viable release projects ar
 If no release project is found (either by no release project existing or all having been removed), the transition will enter RELEASE PROJECT NOT FOUND. +
 After entering RELEASE PROJECT NOT FOUND the state transition will continue as a PushTransition.
 
-[#img-releasetransition]
-.ReleaseTransition
-image::releaserequeststrategy.png[]
+[#img-tagtransition]
+.TagTransition
+image::tagrequeststrategy.png[]

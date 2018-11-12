@@ -1,6 +1,7 @@
 package dk.theknights.catapult.strategies.adapter.tasks;
 
 import dk.theknights.catapult.CatapultContext;
+import dk.theknights.catapult.CatapultException;
 import dk.theknights.catapult.strategies.StubbedBitbucketWebhook;
 import dk.theknights.catapult.strategies.StubbedOpenShiftProject;
 import dk.theknights.catapult.strategies.StubbedOpenShiftService;
@@ -23,7 +24,7 @@ public class CatapultCreateOpenShiftProjectTaskTest {
 	}
 
 	@Test
-	public void testProcessWithValidProjectName() throws IOException {
+	public void testProcessWithValidProjectName() throws IOException, CatapultException {
 		// Arrange
 		CatapultContext context = new CatapultContext();
 		context.setWebhook(new StubbedBitbucketWebhook());
@@ -42,7 +43,7 @@ public class CatapultCreateOpenShiftProjectTaskTest {
 	}
 
 	@Test
-	public void testProcessWithInvalidProjectName() throws IOException {
+	public void testProcessWithInvalidProjectName() throws IOException, CatapultException {
 		// Arrange
 		CatapultContext context = Mockito.mock(CatapultContext.class);
 		StubbedBitbucketWebhook webhook = Mockito.mock(StubbedBitbucketWebhook.class);

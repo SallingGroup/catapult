@@ -20,11 +20,12 @@ import static org.mockito.Mockito.when;
  */
 public class PullRequestStrategyTest {
 
-	PullRequestStrategy strategy;
+	CatapultStrategy strategy;
 
 	@Before
 	public void setUp() {
-		strategy = new PullRequestStrategy();
+		strategy = new CatapultStrategy();
+		strategy.setTransition(new PullRequestTransition());
 	}
 
 	@Test

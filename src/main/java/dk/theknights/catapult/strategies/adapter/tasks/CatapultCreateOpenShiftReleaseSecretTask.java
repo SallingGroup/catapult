@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -74,8 +75,7 @@ public class CatapultCreateOpenShiftReleaseSecretTask implements CatapultAdapter
 	}
 
 	protected File getReleaseSecretFile(final CatapultContext context) {
-		String releaseRegistrySecretPath = context.getCatapultConfig().getSecretsPath() + context.getCatapultConfig().getCatapultProperties().getReleaseRegistrySecretName();
-		return new File(releaseRegistrySecretPath);
+		return Paths.get(context.getCatapultConfig().getSecretsPath(), context.getCatapultConfig().getCatapultProperties().getReleaseRegistrySecretName()).toFile();
 	}
 
 	protected OpenShiftService getOpenShiftService() {

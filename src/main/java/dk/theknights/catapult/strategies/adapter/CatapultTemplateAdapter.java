@@ -49,6 +49,7 @@ public class CatapultTemplateAdapter implements CatapultAdapter {
 		if (
 				(context.getCatapultState() == CatapultStateEnum.CATAPULT_TEMPLATE_NOT_CHANGED
 				|| context.getCatapultState() == CatapultStateEnum.CATAPULT_TEMPLATE_CHANGED
+				|| context.getCatapultState() == CatapultStateEnum.CATAPULT_TEMPLATE_PROCESSED
 				|| context.getCatapultState() == CatapultStateEnum.NO_CONFIGMAPS_FOUND
 				|| context.getCatapultState() == CatapultStateEnum.CONFIGMAPS_UPDATED)
 				&& context.getOpenShiftProject() != null

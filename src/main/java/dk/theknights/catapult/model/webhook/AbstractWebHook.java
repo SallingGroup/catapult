@@ -105,15 +105,15 @@ public abstract class AbstractWebHook {
 	public abstract String getPullRequestSourceName();
 
 	/**
-	 * Identify webhook request type. Can be of Push-, Pull- or Release request.
+	 * Identify webhook request type. Can be of Push-, Pull- or Tag request.
 	 *
-	 * @return Request type (PUSH_REQUEST, PULL_REQUEST, RELEASE_REQUEST)
+	 * @return Request type (PUSH_REQUEST, PULL_REQUEST, TAG_REQUEST)
 	 */
 	public RequestTypeEnum getRequestType() {
 		if (isPullRequest()) {
 			return RequestTypeEnum.PULL_REQUEST;
 		} else if (isTag()) {
-			return RequestTypeEnum.RELEASE_REQUEST;
+			return RequestTypeEnum.TAG_REQUEST;
 		} else {
 			return RequestTypeEnum.PUSH_REQUEST;
 		}

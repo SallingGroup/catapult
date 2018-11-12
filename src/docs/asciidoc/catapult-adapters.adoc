@@ -65,9 +65,9 @@ This adapter has all tasks that run as part of a pull request strategy.
 .Source file
 link:../../src/main/java/dk/theknights/catapult/strategies/adapter/PullRequestAdapter.java[PullRequestAdapter.java]
 
-== ReleaseAdapter
-This adapter has all tasks that run as part of the release strategy.
+== TagAdapter
+This adapter has all tasks that run as part of the tag strategy.
 
 .Source file
-link:../../src/main/java/dk/theknights/catapult/strategies/adapter/ReleaseAdapter.java[ReleaseAdapter.java]
+link:../../src/main/java/dk/theknights/catapult/strategies/adapter/TagAdapter.java[TagAdapter.java]
 

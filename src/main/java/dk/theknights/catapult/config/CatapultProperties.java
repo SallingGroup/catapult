@@ -36,6 +36,9 @@ public class CatapultProperties {
 	@Value("${catapult.project.mapping}")
 	String projectMapping;
 
+	@Value("${catapult.release.repository}")
+	String releaseRepository;
+
 	private ProxyProperties proxy = new ProxyProperties();
 
 	public String getName() {
@@ -81,5 +84,9 @@ public class CatapultProperties {
 
 	public String getProjectMapping() {
 		return projectMapping;
+	}
+
+	public String getReleaseRepository() {
+		return releaseRepository;
 	}
 }

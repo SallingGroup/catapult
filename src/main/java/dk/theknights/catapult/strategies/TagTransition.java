@@ -8,19 +8,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This ReleaseTransition defines the states of the ReleaseStrategy and how to do the transition from one state to another.
+ * This TagTransition defines the states of the TagStrategy and how to do the transition from one state to another.
  *
  * Created by Ole Gregersen (ole.gregersen@sallinggroup.com) on 4/19/18.
  */
-public class ReleaseTransition implements Transition {
+public class TagTransition implements Transition {
 
 	private List<Transition> transitions = new ArrayList<Transition>();
 
 	/**
-	 * Default constructor for release transition that initializes transitions for a release request.
+	 * Default constructor for tag transition that initializes transitions for a tag request.
 	 */
-	public ReleaseTransition() {
-		transitions.add(new CatapultReleaseTransition());
+	public TagTransition() {
+		transitions.add(new CatapultTagTransition());
 		transitions.add(new CatapultTemplateTransition());
 		transitions.add(new CatapultOpenShiftProjectTransition());
 		transitions.add(new CatapultOpenShiftPolicyBindingsTransition());

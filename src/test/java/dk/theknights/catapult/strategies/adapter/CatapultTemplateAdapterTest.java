@@ -2,6 +2,7 @@ package dk.theknights.catapult.strategies.adapter;
 
 import dk.theknights.catapult.CatapultContext;
 import dk.theknights.catapult.CatapultTemplate;
+import dk.theknights.catapult.strategies.StubbedOpenShiftProject;
 import dk.theknights.catapult.strategies.state.CatapultStateEnum;
 import dk.theknights.catapult.strategies.state.InvalidCatapultStateException;
 import org.junit.Before;
@@ -88,6 +89,38 @@ public class CatapultTemplateAdapterTest {
 
 		// Assert
 		assertFalse("CatapultTemplateAdapter must NOT accept wrong context.", accept);
+	}
+
+	@Test
+	public void testAcceptCatapultTemplateChangedState() throws InvalidCatapultStateException {
+		// Arrange
+		CatapultContext context = new CatapultContext();
+		context.setCatapultState(CatapultStateEnum.CATAPULT_TEMPLATE_CHANGED);
+		CatapultAdapter catapultAdapter = catapultAdapterFactory.create(context.getCatapultState());
+		context.setOpenShiftProject(new StubbedOpenShiftProject());
+
+		// Act
+		assertNotNull("catapultAdapter can not be null.", catapultAdapter);
+		boolean accept = catapultAdapter.accept(context);
+
+		// Assert
+		assertTrue("CatapultTemplateAdapter must accept CATAPULT_TEMPLATE_CHANGED.", accept);
+	}
+
+	@Test
+	public void testAcceptCatapultTemplateProcessedState() throws InvalidCatapultStateException {
+		// Arrange
+		CatapultContext context = new CatapultContext();
+		context.setCatapultState(CatapultStateEnum.CATAPULT_TEMPLATE_PROCESSED);
+		CatapultAdapter catapultAdapter = catapultAdapterFactory.create(context.getCatapultState());
+		context.setOpenShiftProject(new StubbedOpenShiftProject());
+
+		// Act
+		assertNotNull("catapultAdapter can not be null.", catapultAdapter);
+		boolean accept = catapultAdapter.accept(context);
+
+		// Assert
+		assertTrue("CatapultTemplateAdapter must accept CATAPULT_TEMPLATE_PROCESSED.", accept);
 	}
 
 }

@@ -46,22 +46,24 @@ public class CatapultDeleteOpenShiftProjectTask implements CatapultAdapterTask {
 	@Override
 	public void perform(final CatapultContext context) {
 		AbstractWebHook webhook = context.getWebhook();
-		if (webhook.getRequestType() == RequestTypeEnum.RELEASE_REQUEST
+		if (webhook.getRequestType() == RequestTypeEnum.TAG_REQUEST
 			|| webhook.getRequestType() == RequestTypeEnum.PULL_REQUEST) {
 			try {
 				OpenShiftService openshiftService = getOpenShiftService(context.getCatapultConfig());
 				openshiftService.deleteProject(context.getOpenShiftProject());
 
-				// wait for project to be gone!
-				boolean gone = false;
-				while (!gone) {
-					try {
-						IProject project = openshiftService.getProject(context.getOpenShiftProject().getNamespace());
-						if (project == null) {
+				if (webhook.getRequestType() == RequestTypeEnum.TAG_REQUEST) {
+					// wait for project to be gone!
+					boolean gone = false;
+					while (!gone) {
+						try {
+							IProject project = openshiftService.getProject(context.getOpenShiftProject().getNamespace());
+							if (project == null) {
+								gone = true;
+							}
+						} catch (IOException ioe) {
 							gone = true;
 						}
-					} catch (IOException ioe) {
-						gone = true;
 					}
 				}
 
@@ -73,7 +75,7 @@ public class CatapultDeleteOpenShiftProjectTask implements CatapultAdapterTask {
 				logger.warn("Project (" + context.getOpenShiftProject().getNamespace() + ") is already marked for deletion");
 			}
 		} else {
-			logger.warn("I am only doing delete project for pull- and release requests");
+			logger.warn("I am only doing delete project for pull- and tag requests");
 		}
 	}
 

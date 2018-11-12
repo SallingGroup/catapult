@@ -1,6 +1,7 @@
 package dk.theknights.catapult.strategies.adapter.tasks;
 
 import dk.theknights.catapult.CatapultContext;
+import dk.theknights.catapult.model.webhook.RequestTypeEnum;
 import dk.theknights.catapult.services.OpenShiftService;
 import dk.theknights.catapult.strategies.state.CatapultStateEnum;
 import org.apache.commons.lang3.tuple.Pair;
@@ -58,8 +59,32 @@ public class CatapultProcessTemplateTask implements CatapultAdapterTask {
 				parameters.add(Pair.of("NAMESPACE", context.getOpenShiftProject().getNamespace()));
 
 				JSONObject json = new JSONObject(jsonTemplate);
-
 				JSONArray jsonArray = json.getJSONArray("parameters");
+				if (context.getWebhook().getRequestType().equals(RequestTypeEnum.TAG_REQUEST)) {
+					String tag = context.getWebhook().getTag();
+
+					parameters.add(Pair.of("RELEASE_KIND", "DockerImage"));
+					parameters.add(Pair.of("RELEASE_VERSION", tag));
+					String releaseName = context.getCatapultConfig().getCatapultProperties().getReleaseRepository();
+
+					boolean found = false;
+					int index = 0;
+					while (!found && index < jsonArray.length()) {
+						JSONObject jsobj = jsonArray.optJSONObject(index);
+						if (jsobj.get("name").equals("RELEASE_NAME")) {
+							releaseName = releaseName + "/" + jsobj.get("value");
+							found = true;
+						}
+						index++;
+					}
+					if (found) {
+						logger.info("adding parameter RELEASE_NAME : " + releaseName);
+						parameters.add(Pair.of("RELEASE_NAME", releaseName));
+					} else {
+						logger.warn("RELEASE_NAME parameter was not found in template. Release is broken, Catapult is not releasing to external registry");
+					}
+				}
+
 				JSONObject sourcereposecret = new JSONObject("{name: \"SOURCE_REPOSITORY_SECRET\", value: \"" + context.getCatapultConfig().getPipelineSourceSecretName(context.getRepositoryType()) + "\"}");
 
 				jsonArray.put(sourcereposecret);

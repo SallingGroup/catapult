@@ -7,7 +7,7 @@ import dk.theknights.catapult.strategies.adapter.CatapultDoneStateAdapter;
 import dk.theknights.catapult.strategies.adapter.CatapultOpenShiftProjectAdapter;
 import dk.theknights.catapult.strategies.adapter.CatapultOpenShiftSecretsAdapter;
 import dk.theknights.catapult.strategies.adapter.CatapultTemplateAdapter;
-import dk.theknights.catapult.strategies.adapter.ReleaseAdapter;
+import dk.theknights.catapult.strategies.adapter.TagAdapter;
 import dk.theknights.catapult.strategies.state.CatapultStateEnum;
 import dk.theknights.catapult.strategies.state.InvalidCatapultStateException;
 import org.jboss.dmr.ModelNode;
@@ -23,16 +23,16 @@ import static org.hamcrest.CoreMatchers.instanceOf;
 /**
  * Created by Ole Gregersen (ole.gregersen@sallinggroup.com) on 4/30/18.
  */
-public class ReleaseTransitionTest {
+public class TagTransitionTest {
 
-	ReleaseTransition transition;
+	TagTransition transition;
 	CatapultContext context;
 	StubbedBitbucketWebhook bitbucketWebhook;
 	
 
 	@Before
 	public void setup() {
-		transition = new ReleaseTransition();
+		transition = new TagTransition();
 		context = new CatapultContext();
 		bitbucketWebhook = new StubbedBitbucketWebhook();
 		bitbucketWebhook.setIsTag(true);
@@ -51,7 +51,7 @@ public class ReleaseTransitionTest {
 		// Assert
 		assertNotNull("CatapultState can not be null.", state);
 		assertNotNull("Adapter cannot be null.", context.getCatapultAdapter(context));
-		assertThat("Adapter must be ReleaseAdapter class!", context.getCatapultAdapter(context), instanceOf(ReleaseAdapter.class));
+		assertThat("Adapter must be TagAdapter class!", context.getCatapultAdapter(context), instanceOf(TagAdapter.class));
 		assertEquals("State must be <" + CatapultStateEnum.RELEASE_PROJECT_FOUND + ">", state, CatapultStateEnum.RELEASE_PROJECT_FOUND);
 	}
 
@@ -66,7 +66,7 @@ public class ReleaseTransitionTest {
 		// Assert
 		assertNotNull("CatapultState can not be null.", state);
 		assertNotNull("Adapter cannot be null.", context.getCatapultAdapter(context));
-		assertThat("Adapter must be ReleaseAdapter class!", context.getCatapultAdapter(context), instanceOf(ReleaseAdapter.class));
+		assertThat("Adapter must be TagAdapter class!", context.getCatapultAdapter(context), instanceOf(TagAdapter.class));
 		assertEquals("State must be <" + CatapultStateEnum.RELEASE_PROJECT_NOT_FOUND + ">", state, CatapultStateEnum.RELEASE_PROJECT_NOT_FOUND);
 	}
 
@@ -81,7 +81,7 @@ public class ReleaseTransitionTest {
 		// Assert
 		assertNotNull("CatapultState can not be null.", state);
 		assertNotNull("Adapter cannot be null.", context.getCatapultAdapter(context));
-		assertThat("Adapter must be ReleaseAdapter class!", context.getCatapultAdapter(context), instanceOf(ReleaseAdapter.class));
+		assertThat("Adapter must be TagAdapter class!", context.getCatapultAdapter(context), instanceOf(TagAdapter.class));
 		assertEquals("State must be <" + CatapultStateEnum.INITIAL + ">", state, CatapultStateEnum.INITIAL);
 	}
 
@@ -96,7 +96,7 @@ public class ReleaseTransitionTest {
 		// Assert
 		assertNotNull("CatapultState can not be null.", state);
 		assertNotNull("Adapter cannot be null.", context.getCatapultAdapter(context));
-		assertThat("Adapter must be ReleaseAdapter class!", context.getCatapultAdapter(context), instanceOf(ReleaseAdapter.class));
+		assertThat("Adapter must be TagAdapter class!", context.getCatapultAdapter(context), instanceOf(TagAdapter.class));
 		assertEquals("State must be <" + CatapultStateEnum.CATAPULT_TEMPLATE_NOT_FOUND + ">", state, CatapultStateEnum.CATAPULT_TEMPLATE_NOT_FOUND);
 	}
 
@@ -127,7 +127,7 @@ public class ReleaseTransitionTest {
 		// Assert
 		assertNotNull("CatapultState can not be null.", state);
 		assertNotNull("Adapter cannot be null.", context.getCatapultAdapter(context));
-		assertThat("Adapter must be ReleaseAdapter class!", context.getCatapultAdapter(context), instanceOf(ReleaseAdapter.class));
+		assertThat("Adapter must be TagAdapter class!", context.getCatapultAdapter(context), instanceOf(TagAdapter.class));
 		assertEquals("State must be <" + CatapultStateEnum.CATAPULT_TEMPLATE_FOUND + ">", state, CatapultStateEnum.CATAPULT_TEMPLATE_FOUND);
 	}
 
@@ -232,6 +232,7 @@ public class ReleaseTransitionTest {
 	public void testOpenShiftProjectNotFoundToOpenShiftProjectCreated() throws InvalidCatapultStateException {
 		// Arrange
 		context.setCatapultState(CatapultStateEnum.OPENSHIFT_PROJECT_NOT_FOUND);
+		context.setOpenShiftProject(new StubbedOpenShiftProject());
 
 		// Act
 		CatapultStateEnum state = transition.next(context);
@@ -241,6 +242,21 @@ public class ReleaseTransitionTest {
 		assertNotNull("Adapter cannot be null.", context.getCatapultAdapter(context));
 		assertThat("Adapter must be CatapultOpenshiftProjectAdapter class!", context.getCatapultAdapter(context), instanceOf(CatapultOpenShiftProjectAdapter.class));
 		assertEquals("State must be <" + CatapultStateEnum.OPENSHIFT_PROJECT_CREATED + ">", state, CatapultStateEnum.OPENSHIFT_PROJECT_CREATED);
+	}
+
+	@Test
+	public void testOpenShiftProjectNotFoundToCatapultDone() throws InvalidCatapultStateException {
+		// Arrange
+		context.setCatapultState(CatapultStateEnum.OPENSHIFT_PROJECT_NOT_FOUND);
+
+		// Act
+		CatapultStateEnum state = transition.next(context);
+
+		// Assert
+		assertNotNull("CatapultState can not be null.", state);
+		assertNotNull("Adapter cannot be null.", context.getCatapultAdapter(context));
+		assertThat("Adapter must be CatapultOpenshiftProjectAdapter class!", context.getCatapultAdapter(context), instanceOf(CatapultOpenShiftProjectAdapter.class));
+		assertEquals("State must be <" + CatapultStateEnum.CATAPULT_DONE + ">", state, CatapultStateEnum.CATAPULT_DONE);
 	}
 
 	@Test
@@ -254,7 +270,7 @@ public class ReleaseTransitionTest {
 		// Assert
 		assertNotNull("CatapultState can not be null.", state);
 		assertNotNull("Adapter cannot be null.", context.getCatapultAdapter(context));
-		assertThat("Adapter must be ReleaseAdapter class!", context.getCatapultAdapter(context), instanceOf(ReleaseAdapter.class));
+		assertThat("Adapter must be TagAdapter class!", context.getCatapultAdapter(context), instanceOf(TagAdapter.class));
 		assertEquals("State must be <" + CatapultStateEnum.POLICY_BINDINGS_UPDATED + ">", state, CatapultStateEnum.POLICY_BINDINGS_UPDATED);
 	}
 

@@ -16,11 +16,12 @@ import static org.mockito.Mockito.when;
 
 public class PushStrategyTest {
 
-	PushStrategy strategy;
+	CatapultStrategy strategy;
 
 	@Before
 	public void setUp() {
-		strategy = new PushStrategy();
+		strategy = new CatapultStrategy();
+		strategy.setTransition(new PushTransition());
 	}
 
 	@Test
