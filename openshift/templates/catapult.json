@@ -121,7 +121,7 @@
             "runPolicy": "Serial",
             "source": {
                 "type": "Docker",
-                "dockerfile": "\n\rFROM tomcat:8.5.9-jre8 \n\rCOPY catapult-1.32.war /usr/local/tomcat/webapps/ROOT.war\n\r",
+                "dockerfile": "\n\rFROM FROM tomcat:8.5-jre8  \n\rRUN rm -rf /usr/local/tomcat/webapps/ROOT\n\rCOPY catapult-1.32.war /usr/local/tomcat/webapps/ROOT.war\n\r",
                 "binary": {
                     "asFile": "ROOT.war"
                 }
@@ -130,9 +130,8 @@
                 "type": "docker",
                 "dockerStrategy": {
                     "from": {
-                        "kind": "ImageStreamTag",
-                        "namespace":"theknights",
-                        "name": "tomcat:8.5.28-jdk8"
+                        "kind": "DockerImage",
+                        "name": "tomcat:8.5-jre8"
                     }
                 }
             }
